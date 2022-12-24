@@ -25,7 +25,7 @@
 
 <div>
 	<div class="text-center mb-8">
-		<h1 class="text-3xl">
+		<h1 class="text-3xl leading-relaxed">
 			Visualize climate change for <span class="bg-gray-200 p-2 decoration-dashed underline decoration-0">{prettyLocName ? prettyLocName : 'your city.'}</span>
 		</h1>
 	</div>
