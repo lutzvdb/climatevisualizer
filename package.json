@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@jridgewell/sourcemap-codec": "^1.4.14",
 		"@sveltejs/adapter-node": "^1.0.0",
 		"@sveltejs/adapter-static": "^1.0.0",
 		"arquero": "^5.1.0",
