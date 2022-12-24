@@ -98,9 +98,9 @@
 		</h3>
 		<p>
 			{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
-				In the 1960s, the average year saw <strong>{firstTrendPoint}</strong>
-				{type == 'rain' ? 'mm of rainfall' : 'cm of snowfall'}. These days, the average yearly sum
-				is <strong>{lastTrendPoint}</strong>{type == 'rain' ? 'mm' : 'cm'}. That is a
+				In the 1960s, the average year saw <strong>{firstTrendPoint}{type == 'rain' ? 'mm of rainfall' : 'cm of snowfall'}
+                </strong>. These days, the average yearly sum
+				is <strong>{lastTrendPoint}{type == 'rain' ? 'mm' : 'cm'}</strong>. That is a
 				<strong>total change of {totalDelta}{type == 'rain' ? 'mm' : 'cm'}</strong>.
 			{/if}
 		</p>
