@@ -10,11 +10,11 @@ export default async function getHistoricalWeatherData(
     const dt = format(dateTo, 'yyyy-MM-dd')
 
     let api = 'https://archive-api.open-meteo.com/v1/era5'
-        + '?latitude=' + lat
-        + '&longitude=' + lon
+        + '?latitude=' + Math.round(100 * lat) / 100
+        + '&longitude=' + Math.round(100 * lon) / 100
         + '&start_date=' + df
         + '&end_date=' + dt
-        + '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FBerlin'
+        + '&daily=temperature_2m_max,temperature_2m_min,rain_sum,snowfall_sum&timezone=Europe%2FBerlin'
 
     const res = await (await fetch(api)).json()
 
