@@ -4,12 +4,9 @@ export default async function getLocationsByString(name: string) {
 
     const res = await fetch(apiCall)
     const data = await res.json()
-
-    if (!data) return
-    if (!data.results) return
-    if (data.results.length == 0) return
-    if (!data.results[0].latitude) return
-    if (!data.results[0].longitude) return
+    
+    if (!data) return new Array()
+    if (!data.results) return new Array()
 
     return (data.results)
 }
