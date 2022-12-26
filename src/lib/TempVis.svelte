@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { op } from 'arquero'
+	import { op, table } from 'arquero'
 	import { Line } from 'svelte-chartjs'
 	import {
 		Chart as ChartJS,
@@ -28,13 +28,13 @@
 
 	$: {
 		if (wthData) {
-			let filteredData = wthData
+			let filteredData = table(wthData)
 			if (type == 'Summer') {
-				filteredData = wthData
+				filteredData = filteredData
 					.filter((d: any) => op.month(d.time) + 1 >= 5 && op.month(d.time) + 1 <= 8)
 					.reify()
 			} else if (type == 'Winter') {
-				filteredData = wthData
+				filteredData = filteredData
 					.filter((d: any) => op.month(d.time) + 1 <= 2 || op.month(d.time) + 1 >= 11)
 					.reify()
 			}

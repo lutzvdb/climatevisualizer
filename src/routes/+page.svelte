@@ -2,9 +2,8 @@
 	import LocationFinder from '$lib/LocationFinder.svelte'
 	import Footer from '$lib/Footer.svelte'
 	import getHistoricalWeatherData from '$lib/weatherData'
-	import TempVis from '$lib/TempVis.svelte'
-	import PrecipVis from '$lib/PrecipVis.svelte'
-	import { table } from 'arquero'
+
+    import { onMount } from "svelte";
 
 	let lat: number | null = null
 	let lon: number | null = null
@@ -17,10 +16,18 @@
 			wthDataPromise = getHistoricalWeatherData(lat, lon).then((res) => {
 				if (!res) return
 				if (!res.daily) return
-				wthData = table(res.daily)
+				wthData = res.daily
 			})
 		}
 	}
+
+    let TempVis: null | any = null 
+    let PrecipVis: null | any = null
+    
+    onMount(async () => {
+        TempVis = (await import('$lib/TempVis.svelte')).default
+	    PrecipVis = (await import('$lib/PrecipVis.svelte')).default
+    })
 </script>
 
 <div>
@@ -37,10 +44,10 @@
 			Loading weather data...
 		{:then}
 			<div class="mt-8">
-				<TempVis {wthData} type="Summer" />
-				<TempVis {wthData} type="Winter" />
-				<PrecipVis {wthData} type="rain" />
-				<PrecipVis {wthData} type="snow" />
+				<svelte:component this={TempVis} {wthData} type="Summer" />
+				<svelte:component this={TempVis} {wthData} type="Winter" />
+				<svelte:component this={PrecipVis} {wthData} type="rain" />
+				<svelte:component this={PrecipVis} {wthData} type="snow" />
 			</div>
 		{/await}
 	{/if}

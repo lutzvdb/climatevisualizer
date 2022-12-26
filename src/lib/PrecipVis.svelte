@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { op } from 'arquero'
+	import { op, table } from 'arquero'
 	import { Line } from 'svelte-chartjs'
 	import {
 		Chart as ChartJS,
@@ -29,7 +29,7 @@
 	$: {
 		if (wthData) {
 			if (type == 'rain') {
-				yearlySum = wthData
+				yearlySum = table(wthData)
 					.derive({ year: (d: any) => op.year(d.time) })
 					.groupby('year')
 					.rollup({
@@ -37,7 +37,7 @@
 					})
 					.objects()
 			} else {
-				yearlySum = wthData
+				yearlySum = table(wthData)
 					.derive({ year: (d: any) => op.year(d.time) })
 					.groupby('year')
 					.rollup({
