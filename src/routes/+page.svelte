@@ -3,7 +3,7 @@
 	import Footer from '$lib/Footer.svelte'
 	import getHistoricalWeatherData from '$lib/weatherData'
 
-    import { onMount } from "svelte";
+	import { onMount } from 'svelte'
 
 	let lat: number | null = null
 	let lon: number | null = null
@@ -21,20 +21,34 @@
 		}
 	}
 
-    let TempVis: null | any = null 
-    let PrecipVis: null | any = null
-    
-    onMount(async () => {
-        TempVis = (await import('$lib/TempVis.svelte')).default
-	    PrecipVis = (await import('$lib/PrecipVis.svelte')).default
-    })
+	let TempVis: null | any = null
+	let PrecipVis: null | any = null
+
+	onMount(async () => {
+		// lazy-load components for faster initial page load
+		TempVis = (await import('$lib/TempVis.svelte')).default
+		PrecipVis = (await import('$lib/PrecipVis.svelte')).default
+	})
 </script>
 
 <div>
 	<div class="text-center mb-8">
 		<h1 class="text-3xl leading-relaxed">
-			Visualize climate change for <span class="bg-gray-200 p-2 decoration-dashed underline decoration-0">{prettyLocName ? prettyLocName : 'your city.'}</span>
+			Visualize climate change for <span
+				class="bg-gray-200 p-2 decoration-dashed underline decoration-0"
+				>{prettyLocName ? prettyLocName : 'your city.'}</span
+			>
 		</h1>
+	</div>
+	<div>
+		<p>
+			It is normal for weather conditions to be quite different from year to year - some years are
+			hotter, some are colder; some are wetter, some are drier. However, for many places on earth,
+			strong trends can be observed. In many cases, the trend is for temperatures to be higher on
+			average. The graphics below are designed to give you an idea of how the climate has changed to
+			this date for the place where you live.
+		</p>
+        <br />
 	</div>
 	<div>
 		<LocationFinder bind:lat bind:lon bind:prettyLocName />

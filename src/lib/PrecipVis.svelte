@@ -82,13 +82,13 @@
 
 <div>
 	<div class="mt-14">
-		<h3 class="text-xl m-4">
+		<h3 class="text-2xl w-full text-center m-4">
 			{#if type == 'rain'}
 				<CloudRainIcon class="inline mr-2" />
-				Amount of rainfall (mm) per year: {totalDelta}mm
+				Amount of yearly rainfall: {totalDelta && Math.abs(totalDelta)}mm
 			{:else}
 				<CloudSnowIcon class="inline mr-2" />
-				Amount of snowfall (cm) per year: {totalDelta}cm
+				Amount of yearly snowfall: {totalDelta && Math.abs(totalDelta)}cm
 			{/if}
 			{#if totalDelta && totalDelta > 0}
 				more
@@ -101,7 +101,7 @@
 				In the 1960s, the average year saw <strong>{firstTrendPoint}{type == 'rain' ? 'mm of rainfall' : 'cm of snowfall'}
                 </strong>. These days, the average yearly sum
 				is <strong>{lastTrendPoint}{type == 'rain' ? 'mm' : 'cm'}</strong>. That is a
-				<strong>total change of {totalDelta}{type == 'rain' ? 'mm' : 'cm'}</strong>.
+				total change of {totalDelta}{type == 'rain' ? 'mm' : 'cm'}.
 			{/if}
 		</p>
 		{#if plotData}
