@@ -96,6 +96,7 @@
 				bind:value={locName}
 				on:keydown={checkKeyDown}
 				class="p-4 w-full "
+                placeholder="Berlin"
 			/>
 		</div>
 		<!-- <div class="flex items-center">
