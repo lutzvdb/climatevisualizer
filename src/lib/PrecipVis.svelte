@@ -50,11 +50,11 @@
 
 			const linTrend = LinearRegression(yearlySum.map((i: any) => [i.year, i.sumPrecipitation]))
 
-			firstTrendPoint = Math.round(linTrend.predictions[0][1] * 100) / 100
+			firstTrendPoint = Math.round(linTrend.predictions[0][1] * 10) / 10
 			lastTrendPoint =
-				Math.round(linTrend.predictions[linTrend.predictions.length - 1][1] * 100) / 100
-			gradient = Math.round(linTrend.gradient * 10 * 100) / 100 // per decade
-			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 100) / 100
+				Math.round(linTrend.predictions[linTrend.predictions.length - 1][1] * 10) / 10
+			gradient = Math.round(linTrend.gradient * 10 * 10) / 10 // per decade
+			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 10) / 10
 
 			const lastYear = linTrend.predictions[linTrend.predictions.length - 1][0]
 
@@ -105,7 +105,7 @@
 					In the 1960s, the average year saw <strong
 						>{firstTrendPoint}{type == 'rain' ? 'mm of rainfall' : 'cm of snowfall'}
 					</strong>. These days, the average yearly sum is
-					<strong>{lastTrendPoint}{type == 'rain' ? 'mm' : 'cm'}</strong>. That is a total change of {totalDelta}{type ==
+					<strong>{lastTrendPoint}{type == 'rain' ? 'mm' : 'cm'}</strong>. That is a total change of about {totalDelta}{type ==
 					'rain'
 						? 'mm'
 						: 'cm'}.

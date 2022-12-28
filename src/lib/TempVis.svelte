@@ -84,14 +84,14 @@
 			const linTrendLow = LinearRegression(yearlyAverages.map((i: any) => [i.year, i.avgDailyLow]))
 			const linTrendSD = LinearRegression(specialDays.map((i: any) => [i.year, i.noSpecialDays]))
 
-			firstTrendPoint = Math.round(linTrendHigh.predictions[0][1] * 100) / 100
+			firstTrendPoint = Math.round(linTrendHigh.predictions[0][1] * 10) / 10
 			lastTrendPoint =
-				Math.round(linTrendHigh.predictions[linTrendHigh.predictions.length - 1][1] * 100) / 100
-			firstTrendPoint2 = Math.round(linTrendSD.predictions[0][1] * 100) / 100
+				Math.round(linTrendHigh.predictions[linTrendHigh.predictions.length - 1][1] * 10) / 10
+			firstTrendPoint2 = Math.round(linTrendSD.predictions[0][1] * 10) / 10
 			lastTrendPoint2 =
-				Math.round(linTrendSD.predictions[linTrendSD.predictions.length - 1][1] * 100) / 100
-			gradient = Math.round(linTrendHigh.gradient * 10 * 100) / 100 // per decade
-			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 100) / 100
+				Math.round(linTrendSD.predictions[linTrendSD.predictions.length - 1][1] * 10) / 10
+			gradient = Math.round(linTrendHigh.gradient * 10 * 10) / 10 // per decade
+			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 10) / 10
 
 			const lastYear = linTrendHigh.predictions[linTrendHigh.predictions.length - 1][0]
 
