@@ -58,8 +58,8 @@
 			Loading weather data...
 		{:then}
 			<div class="mt-8">
-				<svelte:component this={TempVis} {wthData} type="Summer" />
-				<svelte:component this={TempVis} {wthData} type="Winter" />
+				<svelte:component this={TempVis} {wthData} latitude={lat} type="Summer" />
+				<svelte:component this={TempVis} {wthData} latitude={lat} type="Winter" />
 				<svelte:component this={PrecipVis} {wthData} type="rain" />
 				<svelte:component this={PrecipVis} {wthData} type="snow" />
 			</div>

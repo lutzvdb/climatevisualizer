@@ -4,7 +4,9 @@ export default async function getHistoricalWeatherData(
     lat: number,
     lon: number,
     dateFrom: Date = parseISO('1960-01-01'),
-    dateTo: Date = parseISO((Number(format(new Date(), 'yyyy')) - 1) + '-12-31')
+    dateTo: Date = ((new Date()).getMonth() > 10) ?
+        new Date() :
+        parseISO((Number(format(new Date(), 'yyyy')) - 1) + '-12-31')
 ) {
     const df = format(dateFrom, 'yyyy-MM-dd')
     const dt = format(dateTo, 'yyyy-MM-dd')

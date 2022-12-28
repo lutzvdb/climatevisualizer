@@ -11,3 +11,8 @@ html {
     src: url("/Lato-Regular.ttf");
     font-style: normal;
 }
+
+a {
+    text-decoration: dashed;
+    text-decoration-line: underline;
+}
