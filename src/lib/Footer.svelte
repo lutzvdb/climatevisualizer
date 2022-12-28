@@ -4,10 +4,18 @@
 			target="_blank"
 			rel="noreferrer"
 			href="https://www.thisislutz.com"
-			alt="lutzvdb"
+			title="lutzvdb"
 		>
-			lvdb
-		</a>.
+			Lutz von der Burchard
+		</a>, the source code is available on
+		<a
+			target="_blank"
+			rel="noreferrer"
+			href="https://github.com/lutzvdb/climatevisualizer"
+			title="github"
+		>
+			github
+		</a>. Everyone is kindly invited to contribute to this app.
 	</p>
 	<br />
 	<p>
@@ -15,12 +23,12 @@
 			href="https://open-meteo.com"
 			target="_blank"
 			rel="noreferrer"
-			alt="Open Meteo"
+			title="Open Meteo"
 		>
 			open-meteo.com
 		</a>
 		and is based on ERA5-reanalysis data, which itself comes from the amazing
-		<a href="https://climate.copernicus.eu" target="_blank" rel="noreferrer" alt="Copernicus">
+		<a href="https://climate.copernicus.eu" target="_blank" rel="noreferrer" title="Copernicus">
 			copernicus program.
 		</a>
 	</p>
