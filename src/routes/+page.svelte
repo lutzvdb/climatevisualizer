@@ -2,7 +2,7 @@
 	import LocationFinder from '$lib/LocationFinder.svelte'
 	import Footer from '$lib/Footer.svelte'
 	import getHistoricalWeatherData from '$lib/weatherData'
-
+    import { inject } from '@vercel/analytics';
 	import { onMount } from 'svelte'
 
 	let lat: number | null = null
@@ -28,6 +28,8 @@
 		// lazy-load components for faster initial page load
 		TempVis = (await import('$lib/TempVis.svelte')).default
 		PrecipVis = (await import('$lib/PrecipVis.svelte')).default
+
+        inject(); // analytics
 	})
 </script>
 
