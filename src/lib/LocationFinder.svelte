@@ -88,14 +88,14 @@
 
 <div>
 	<div>To look up your city, start typing its name:</div>
-	<div class="flex flex-row gap-4 p-4">
+	<div class="flex flex-row gap-4 py-2">
 		<div class="grow">
             <!-- svelte-ignore a11y-autofocus -->
 			<input
                 autofocus
 				bind:value={locName}
 				on:keydown={checkKeyDown}
-				class="p-4 w-full "
+				class="p-4 w-full rounded-lg border border-gray-300"
                 placeholder="Berlin"
 			/>
 		</div>
@@ -110,14 +110,14 @@
 		</div> -->
 	</div>
 	{#if noResultsFound && !looking}
-		<div class="h-64 w-full rounded-xl mx-4 overflow-scroll">
+		<div class="h-64 w-full rounded-xl overflow-scroll">
 			<ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full">
 				<li class="p-4">No results found.</li>
 			</ul>
 		</div>
 	{/if}
 	{#if locations && locations.length > 0}
-		<div class="h-64 w-full rounded-xl mx-4 overflow-scroll">
+		<div class="h-64 w-full rounded-xl overflow-scroll">
 			<ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full">
 				{#each locations as loc, i}
 					<li class={selectedLocation == i ? 'bg-gray-200' : ''} bind:this={locElRefs[i]}>

@@ -18,6 +18,7 @@
 
 	export let wthData: any = null
 	export let type: string = 'rain'
+    export let unit: string = 'mm'
 
 	let yearlySum: any = null
 	let plotData: any = null
@@ -85,14 +86,14 @@
 
 {#if !(type == 'snow' && lastTrendPoint == 0 && firstTrendPoint == 0)}
 	<div>
-		<div class="mt-14">
-			<h3 class="text-2xl w-full text-center m-4">
+		<div class="mt-8">
+			<h3 class="text-2xl w-full text-center my-4">
 				{#if type == 'rain'}
 					<CloudRainIcon class="inline mr-2" />
-					Amount of yearly rainfall: {totalDelta && Math.abs(totalDelta)}mm
+					Amount of yearly rainfall: {totalDelta && Math.abs(totalDelta)}{unit}
 				{:else}
 					<CloudSnowIcon class="inline mr-2" />
-					Amount of yearly snowfall: {totalDelta && Math.abs(totalDelta)}cm
+					Amount of yearly snowfall: {totalDelta && Math.abs(totalDelta)}{unit}
 				{/if}
 				{#if totalDelta && totalDelta > 0}
 					more
@@ -103,12 +104,9 @@
 			<p>
 				{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
 					In the 1960s, the average year saw <strong
-						>{firstTrendPoint}{type == 'rain' ? 'mm of rainfall' : 'cm of snowfall'}
+						>{firstTrendPoint}{unit}{type == 'rain' ? ' of rainfall' : ' of snowfall'}
 					</strong>. These days, the average yearly sum is
-					<strong>{lastTrendPoint}{type == 'rain' ? 'mm' : 'cm'}</strong>. That is a total change of about {totalDelta}{type ==
-					'rain'
-						? 'mm'
-						: 'cm'}.
+					<strong>{lastTrendPoint}{unit}</strong>. That is a total change of about {totalDelta}{unit}.
 				{/if}
 			</p>
 			{#if plotData}

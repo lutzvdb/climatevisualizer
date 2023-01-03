@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { escape, op, table } from 'arquero'    
+	import { escape, op, table } from 'arquero'
 	import { Line } from 'svelte-chartjs'
 	import {
 		Chart as ChartJS,
@@ -18,10 +18,20 @@
 
 	export let wthData: any = null
 	export let type: string = 'Summer'
-    export let latitude: number
+	export let latitude: number
+	export let unit: string = 'C'
 
-    let summerMonths = latitude > 0 ? [5, 6, 7, 8] : [11, 12, 1, 2]
-    let winterMonths = latitude > 0 ? [11, 12, 1, 2] : [5, 6, 7, 8]
+	let hotCutoff: number = 25
+	let freezingCutoff: number = 0
+
+	$: {
+		// update cutoffs for unit change
+		hotCutoff = unit == 'C' ? 25 : 80
+		freezingCutoff = unit == 'C' ? 0 : 32
+	}
+
+	let summerMonths = latitude > 0 ? [5, 6, 7, 8] : [11, 12, 1, 2]
+	let winterMonths = latitude > 0 ? [11, 12, 1, 2] : [5, 6, 7, 8]
 
 	let yearlyAverages: any = null
 	let plotData: any = null
@@ -44,12 +54,12 @@
 
 			if (type == 'Summer') {
 				filteredData = filteredData
-					.filter(escape((d: any) => summerMonths.includes(op.month(d.time)+1)) )
+					.filter(escape((d: any) => summerMonths.includes(op.month(d.time) + 1)))
 					.derive({ year: (d: any) => op.year(d.time) })
 					.reify()
 
 				specialDayData = filteredData
-					.derive({ hotDay: (d: any) => (d.temperature_2m_max >= 25 ? 1 : 0) })
+					.derive({ hotDay: escape((d: any) => (d.temperature_2m_max >= hotCutoff ? 1 : 0) )})
 					.groupby('year')
 					.rollup({
 						noSpecialDays: (d: any) => op.sum(d.hotDay)
@@ -62,7 +72,7 @@
 					.reify()
 
 				specialDayData = filteredData
-					.derive({ freezingDay: (d: any) => (d.temperature_2m_min <= 0 ? 1 : 0) })
+					.derive({ freezingDay: escape((d: any) => (d.temperature_2m_min <= freezingCutoff ? 1 : 0) )})
 					.groupby('year')
 					.rollup({
 						noSpecialDays: (d: any) => op.sum(d.freezingDay)
@@ -137,7 +147,10 @@
 				labels: specialDays.map((i: any) => i.year),
 				datasets: [
 					{
-						label: type == 'Summer' ? 'Number of days >= 25°C' : 'Number of days <= 0°C',
+						label:
+							type == 'Summer'
+								? 'Number of days >= ' + hotCutoff + '°' + unit
+								: 'Number of days <= ' + freezingCutoff + '°' + unit,
 						data: specialDays.map((i: any) => i.noSpecialDays),
 						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,255,0.1)',
 						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.2)' : 'rgba(0,0,255,0.2)',
@@ -159,10 +172,10 @@
 </script>
 
 <div>
-	<div class="mt-14">
-		<h3 class="text-2xl w-full text-center m-4">
+	<div class="mt-8">
+		<h3 class="text-2xl w-full text-center my-4">
 			<ThermometerIcon class="inline mr-2" />
-			{type}: {totalDelta && Math.abs(totalDelta)}°C
+			{type}: {totalDelta && Math.abs(totalDelta)}°{unit}
 			{#if totalDelta && totalDelta > 0}
 				hotter
 			{:else if totalDelta && totalDelta < 0}
@@ -173,17 +186,21 @@
 			{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
 				{#if type == 'Summer'}
 					In the 1960s, the average summer day had a daily high of <strong
-						>{firstTrendPoint}°C</strong
-					>. These days, the average daily high is <strong>{lastTrendPoint}°C</strong>. That's a
-					change of about {gradient}°C per decade and is a total change of {totalDelta}°C ! Oh, by
-					the way, summer means {latitude > 0 ? 'May through August' : 'November through February'} here.
+						>{firstTrendPoint}°{unit}</strong
+					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
+					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
+					! Oh, by the way, summer means {latitude > 0
+						? 'May through August'
+						: 'November through February'} here.
 				{/if}
 				{#if type == 'Winter'}
 					In the 1960s, the average winter day had a daily high of <strong
-						>{firstTrendPoint}°C</strong
-					>. These days, the average daily high is <strong>{lastTrendPoint}°C</strong>. That's a
-					change of about {gradient}°C per decade and is a total change of {totalDelta}°C ! By
-					winter days I mean days from {latitude > 0 ? 'November to February' : 'May to August'}.
+						>{firstTrendPoint}°{unit}</strong
+					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
+					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
+					! By winter days I mean days from {latitude > 0
+						? 'November to February'
+						: 'May to August'}.
 				{/if}
 			{/if}
 		</p>
@@ -191,22 +208,21 @@
 			<Line data={plotData} options={{ spanGaps: true, plugins: { legend: { display: false } } }} />
 		{/if}
 		{#if !(// don't display if there was exactly 0 change (constant data ==> no freezing days / all hot days)
-			(lastTrendPoint2 - firstTrendPoint2) == 0)
-        }
+			(lastTrendPoint2 - firstTrendPoint2 == 0))}
 			<p>
 				<br />
 				{#if type == 'Summer'}
 					In the plot below, you can see the number of days in the summer months where daily maximum
-					temperatures were &gt;= 25°C. For many places on earth, we can see that this number of
-					days has greatly increased in the past 60 years. In this case, the number of hot days has
-					changed
+					temperatures were &geq; {hotCutoff}°{unit}. For many places on earth, we can see that this number
+					of days has greatly increased in the past 60 years. In this case, the number of hot days
+					has changed
 					<strong
 						>from {firstTrendPoint2} days in the 1960s to {lastTrendPoint2} days in present time.</strong
 					>
 				{:else}
 					Below, you can see the number of days in the winter months where daily minimum
-					temperatures were &lt;=0°C. For many places on earth, we can see that this number of days
-					is steadily decreasing. In this case, the number of freezing days has changed
+					temperatures were &leq;{freezingCutoff}°{unit}. For many places on earth, we can see that this number of
+					days is steadily decreasing. In this case, the number of freezing days has changed
 					<strong
 						>from {firstTrendPoint2} days in the 1960s to {lastTrendPoint2} days in present time.</strong
 					>
