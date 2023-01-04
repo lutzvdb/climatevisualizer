@@ -23,15 +23,17 @@
 
 	let hotCutoff: number = 25
 	let freezingCutoff: number = 0
+	let potentialHotCutoffs: number[] = [15, 20, 25, 30, 35, 40, 45]
 
 	$: {
 		// update cutoffs for unit change
 		hotCutoff = unit == 'C' ? 25 : 80
+		potentialHotCutoffs = unit == 'C' ? [15, 20, 25, 30, 35, 40, 45] : [60, 70, 80, 90, 100, 110]
 		freezingCutoff = unit == 'C' ? 0 : 32
 	}
 
-	let summerMonths = latitude > 0 ? [5, 6, 7, 8] : [11, 12, 1, 2]
-	let winterMonths = latitude > 0 ? [11, 12, 1, 2] : [5, 6, 7, 8]
+	let summerMonths = latitude > 0 ? [6, 7, 8] : [12, 1, 2]
+	let winterMonths = latitude > 0 ? [12, 1, 2] : [6, 7, 8]
 
 	let yearlyAverages: any = null
 	let plotData: any = null
@@ -59,7 +61,7 @@
 					.reify()
 
 				specialDayData = filteredData
-					.derive({ hotDay: escape((d: any) => (d.temperature_2m_max >= hotCutoff ? 1 : 0) )})
+					.derive({ hotDay: escape((d: any) => (d.temperature_2m_max >= hotCutoff ? 1 : 0)) })
 					.groupby('year')
 					.rollup({
 						noSpecialDays: (d: any) => op.sum(d.hotDay)
@@ -72,7 +74,9 @@
 					.reify()
 
 				specialDayData = filteredData
-					.derive({ freezingDay: escape((d: any) => (d.temperature_2m_min <= freezingCutoff ? 1 : 0) )})
+					.derive({
+						freezingDay: escape((d: any) => (d.temperature_2m_min <= freezingCutoff ? 1 : 0))
+					})
 					.groupby('year')
 					.rollup({
 						noSpecialDays: (d: any) => op.sum(d.freezingDay)
@@ -182,6 +186,7 @@
 				colder
 			{/if}
 		</h3>
+		<h4 class="text-xl m-4 mt-8">Average daily {type == 'Summer' ? 'high' : 'low'}</h4>
 		<p>
 			{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
 				{#if type == 'Summer'}
@@ -190,8 +195,8 @@
 					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
 					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
 					! Oh, by the way, summer means {latitude > 0
-						? 'May through August'
-						: 'November through February'} here.
+						? 'June through August'
+						: 'December through February'} here.
 				{/if}
 				{#if type == 'Winter'}
 					In the 1960s, the average winter day had a daily high of <strong
@@ -199,30 +204,42 @@
 					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
 					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
 					! By winter days I mean days from {latitude > 0
-						? 'November to February'
-						: 'May to August'}.
+						? 'December to February'
+						: 'June to August'}.
 				{/if}
 			{/if}
 		</p>
 		{#if plotData}
 			<Line data={plotData} options={{ spanGaps: true, plugins: { legend: { display: false } } }} />
 		{/if}
+		<h4 class="text-xl m-4 mt-8">
+			{#if type == 'Summer'}
+				Number of days hotter than
+				<select class="inline select select-bordered w-min select-sm" bind:value={hotCutoff}>
+					{#each potentialHotCutoffs as co}
+						<option value={co}>{co}°{unit}</option>
+					{/each}
+				</select>
+			{:else}
+				Number of freezing days
+			{/if}
+		</h4>
 		{#if !(// don't display if there was exactly 0 change (constant data ==> no freezing days / all hot days)
 			(lastTrendPoint2 - firstTrendPoint2 == 0))}
 			<p>
-				<br />
 				{#if type == 'Summer'}
 					In the plot below, you can see the number of days in the summer months where daily maximum
-					temperatures were &geq; {hotCutoff}°{unit}. For many places on earth, we can see that this number
-					of days has greatly increased in the past 60 years. In this case, the number of hot days
-					has changed
+					temperatures were &geq;{hotCutoff}°{unit}. For many places on earth, we can see that this
+					number of days has greatly increased in the past 60 years. In this case, the number of hot
+					days has changed
 					<strong
 						>from {firstTrendPoint2} days in the 1960s to {lastTrendPoint2} days in present time.</strong
 					>
 				{:else}
 					Below, you can see the number of days in the winter months where daily minimum
-					temperatures were &leq;{freezingCutoff}°{unit}. For many places on earth, we can see that this number of
-					days is steadily decreasing. In this case, the number of freezing days has changed
+					temperatures were &leq;{freezingCutoff}°{unit}. For many places on earth, we can see that
+					this number of days is steadily decreasing. In this case, the number of freezing days has
+					changed
 					<strong
 						>from {firstTrendPoint2} days in the 1960s to {lastTrendPoint2} days in present time.</strong
 					>
@@ -234,6 +251,8 @@
 					options={{ spanGaps: true, plugins: { legend: { display: false } } }}
 				/>
 			{/if}
+        {:else}
+            No data found.
 		{/if}
 	</div>
 </div>

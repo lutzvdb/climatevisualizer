@@ -1,4 +1,4 @@
-<div class="text-center w-full mt-8 text-sm text-gray-500">
+<div class="text-center w-full text-sm text-gray-500">
 	<p>
 		This webapp was coded by <a
 			target="_blank"
