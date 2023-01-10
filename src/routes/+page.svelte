@@ -8,6 +8,16 @@
 	import { dev } from '$app/environment'
 	import Card from '$lib/Card.svelte'
 
+    import {
+		Chart as ChartJS,
+		Tooltip,
+		LineElement,
+		LinearScale,
+		PointElement,
+		CategoryScale,
+        Filler
+	} from 'chart.js'
+
 	let lat: number | null = null
 	let lon: number | null = null
 	let prettyLocName: string | null = null
@@ -67,6 +77,7 @@
 		// lazy-load components for faster initial page load
 		TempVis = (await import('$lib/TempVis.svelte')).default
 		PrecipVis = (await import('$lib/PrecipVis.svelte')).default
+        ChartJS.register(Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
 
 		if (dev) {
 			console.log('Not running analytics in development mode.')

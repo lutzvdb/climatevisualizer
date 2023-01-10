@@ -1,18 +1,7 @@
 <script lang="ts">
 	import { escape, op, table } from 'arquero'
 	import { Line } from 'svelte-chartjs'
-	import {
-		Chart as ChartJS,
-		Title,
-		Tooltip,
-		Legend,
-		LineElement,
-		LinearScale,
-		PointElement,
-		CategoryScale
-	} from 'chart.js'
 	import { ThermometerIcon } from 'svelte-feather-icons'
-	ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale)
 
 	import LinearRegression from './linearRegression'
 
@@ -116,8 +105,13 @@
 						label: 'Avg. daily high',
 						data: yearlyAverages.map((i: any) => i.avgDailyHigh),
 						borderColor: 'rgba(255,0,0,0.1)',
-						backgroundColor: 'rgba(255,0,0,0.2)',
-						pointRadius: 3
+						backgroundColor: 'rgba(255,0,0,0.05)',
+						pointRadius: 2,
+                        fill: {
+                            target: '+1',
+                            above: 'rgba(255, 0, 0, 0.05)',
+                            below: 'rgba(255, 0, 0, 0.05)'
+                        }
 					},
 					{
 						label: 'Avg. daily high (trend)',
@@ -132,8 +126,13 @@
 						label: 'Avg. daily low',
 						data: yearlyAverages.map((i: any) => i.avgDailyLow),
 						borderColor: 'rgba(0,0,255,0.1)',
-						backgroundColor: 'rgba(0,0,255,0.05)',
-						pointRadius: 3
+						backgroundColor: 'rgba(0,0,255,0.02)',
+						pointRadius: 2,
+                        fill: {
+                            target: '+1',
+                            above: 'rgba(0, 0, 255, 0.05)',
+                            below: 'rgba(0, 0, 255, 0.05)'
+                        }
 					},
 					{
 						label: 'Avg. daily low (trend)',
@@ -158,7 +157,7 @@
 						data: specialDays.map((i: any) => i.noSpecialDays),
 						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,255,0.1)',
 						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.2)' : 'rgba(0,0,255,0.2)',
-						pointRadius: 3
+						pointRadius: 2
 					},
 					{
 						label: 'Trend',

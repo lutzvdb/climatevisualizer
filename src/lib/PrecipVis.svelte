@@ -1,18 +1,7 @@
 <script lang="ts">
 	import { op, table } from 'arquero'
 	import { Line } from 'svelte-chartjs'
-	import {
-		Chart as ChartJS,
-		Title,
-		Tooltip,
-		Legend,
-		LineElement,
-		LinearScale,
-		PointElement,
-		CategoryScale
-	} from 'chart.js'
 	import { CloudSnowIcon, CloudRainIcon } from 'svelte-feather-icons'
-	ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale)
 
 	import LinearRegression from './linearRegression'
 
@@ -104,7 +93,7 @@
 						data: yearlySum.map((i: any) => i.sumPrecipitation),
 						borderColor: 'rgba(0,0,255, 0.1)',
 						backgroundColor: 'rgba(0,0,255,0.2)',
-						pointRadius: 3
+						pointRadius: 2
 					},
 					{
 						label: 'Trend',
@@ -127,7 +116,7 @@
 							data: dryDays.map((i: any) => i.dryDayN),
 							borderColor: 'rgba(0,0,255, 0.1)',
 							backgroundColor: 'rgba(0,0,255,0.2)',
-							pointRadius: 3
+							pointRadius: 2
 						},
 						{
 							label: 'Trend',
@@ -149,7 +138,8 @@
 							data: yearlySum.map((i: any) => i.strongestRain),
 							borderColor: 'rgba(0,0,255, 0.1)',
 							backgroundColor: 'rgba(0,0,255,0.2)',
-							pointRadius: 3
+							pointRadius: 2,
+                            fill: 2
 						},
 						{
 							label: 'Trend',
