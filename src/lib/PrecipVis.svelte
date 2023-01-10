@@ -171,18 +171,21 @@
 	<div>
 		<div class="mt-8">
 			<h3 class="text-2xl w-full text-center my-4">
-				{#if type == 'rain'}
-					<CloudRainIcon class="inline mr-2" />
-					Amount of yearly rainfall: {totalDelta && Math.abs(totalDelta)}{unit}
-				{:else}
-					<CloudSnowIcon class="inline mr-2" />
-					Amount of yearly snowfall: {totalDelta && Math.abs(totalDelta)}{unit}
-				{/if}
-				{#if totalDelta && totalDelta > 0}
-					more
-				{:else if totalDelta && totalDelta < 0}
-					less
-				{/if}
+                {#if totalDelta && firstTrendPoint}
+                    {#if type == 'rain'}
+                        <CloudRainIcon class="inline mr-2" />
+                        Amount of yearly rainfall: {totalDelta && Math.abs(totalDelta)}{unit}
+                    {:else}
+                        <CloudSnowIcon class="inline mr-2" />
+                        Amount of yearly snowfall: {totalDelta && Math.abs(totalDelta)}{unit}
+                    {/if}
+                    {#if totalDelta && totalDelta > 0}
+                        more
+                    {:else if totalDelta && totalDelta < 0}
+                        less
+                    {/if}
+                    ({totalDelta > 0 ? '+' : ''}{ Math.round(10 * 100 * (totalDelta / firstTrendPoint)) / 10 }%)
+                {/if}
 			</h3>
 			<h4 class="text-xl m-4">Total yearly {type == 'rain' ? 'rainfall' : 'snowfall'}</h4>
 			<p>
@@ -226,11 +229,16 @@
 						</strong>. By now, this has changed to
 						<strong>{lastTrendPoint3}{unit}</strong>. In many places on earth, we see stronger daily
 						rainfalls.
-						{#if lastTrendPoint2 && firstTrendPoint2 && lastTrendPoint2 > firstTrendPoint2 && lastTrendPoint3 > firstTrendPoint3}
+						{#if 
+                            lastTrendPoint2 && firstTrendPoint2 && 
+                            lastTrendPoint2 > firstTrendPoint2 && 
+                            lastTrendPoint3 > firstTrendPoint3 && 
+                            (lastTrendPoint2-firstTrendPoint2) / firstTrendPoint2 > 0.03 &&
+                            (lastTrendPoint3-firstTrendPoint3) / firstTrendPoint3 > 0.03 }
 							The combination of more dry days yet stronger daily rainfall means that there is a
 							tendency for the soil to be either dried out or overwhelmed with water. This is
 							problematic for agriculture as plants are not supplied with a constant enough stream
-							of water, causing significant loss of food.
+							of water, potentially causing significant loss of food.
 						{/if}
 					{/if}
 				</p>
@@ -243,4 +251,8 @@
 			{/if}
 		</div>
 	</div>
+{:else}
+    <p>
+        No relevant data found.
+    </p>
 {/if}
