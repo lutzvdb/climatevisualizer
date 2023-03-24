@@ -15,13 +15,20 @@
 	let plotData2: any = null
 	let plotData3: any = null
 	let firstTrendPoint: number | null = null
+	let thisYearTrendPoint: number | null = null
 	let lastTrendPoint: number | null = null
 	let firstTrendPoint2: number | null = null
+	let thisYearTrendPoint2: number | null = null
 	let lastTrendPoint2: number | null = null
 	let firstTrendPoint3: number | null = null
+	let thisYearTrendPoint3: number | null = null
 	let lastTrendPoint3: number | null = null
 	let totalDelta: number | null = null
+    let todayDelta: number | null = null
 	let gradient: number | null = null
+	let lastYear: number | null = null
+	let firstYear: number | null = null
+	let curYear: number = new Date().getFullYear()
 
 	$: {
 		if (wthData) {
@@ -57,16 +64,21 @@
 			const linTrend = LinearRegression(yearlySum.map((i: any) => [i.year, i.sumPrecipitation]))
 
 			firstTrendPoint = Math.round(linTrend.predictions[0][1] * 10) / 10
+			thisYearTrendPoint =
+				Math.round(linTrend.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 			lastTrendPoint =
 				Math.round(linTrend.predictions[linTrend.predictions.length - 1][1] * 10) / 10
 			gradient = Math.round(linTrend.gradient * 10 * 10) / 10 // per decade
 			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 10) / 10
+            todayDelta = Math.round((thisYearTrendPoint - firstTrendPoint) * 10) / 10
 
 			let linTrend_dryDays
 			let linTrend_strongestRain
 			if (type == 'rain') {
 				linTrend_dryDays = LinearRegression(dryDays.map((i: any) => [i.year, i.dryDayN]))
 				firstTrendPoint2 = Math.round(linTrend_dryDays.predictions[0][1] * 10) / 10
+				thisYearTrendPoint2 =
+					Math.round(linTrend_dryDays.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 				lastTrendPoint2 =
 					Math.round(
 						linTrend_dryDays.predictions[linTrend_dryDays.predictions.length - 1][1] * 10
@@ -76,6 +88,9 @@
 					yearlySum.map((i: any) => [i.year, i.strongestRain])
 				)
 				firstTrendPoint3 = Math.round(linTrend_strongestRain.predictions[0][1] * 10) / 10
+				thisYearTrendPoint3 =
+					Math.round(linTrend_strongestRain.predictions.filter((i) => i[0] == curYear)[0][1] * 10) /
+					10
 				lastTrendPoint3 =
 					Math.round(
 						linTrend_strongestRain.predictions[linTrend_strongestRain.predictions.length - 1][1] *
@@ -83,22 +98,31 @@
 					) / 10
 			}
 
-			const lastYear = linTrend.predictions[linTrend.predictions.length - 1][0]
+			firstYear = linTrend.predictions[0][0]
+			lastYear = linTrend.predictions[linTrend.predictions.length - 1][0]
 
 			plotData = {
 				labels: yearlySum.map((i: any) => i.year),
 				datasets: [
 					{
-						label: 'Yearly sum',
-						data: yearlySum.map((i: any) => i.sumPrecipitation),
+						label: 'Yearly sum (observed)',
+						data: yearlySum.map((i: any) => (i.year < curYear ? i.sumPrecipitation : null)),
 						borderColor: 'rgba(0,0,255, 0.1)',
 						backgroundColor: 'rgba(0,0,255,0.2)',
 						pointRadius: 2
 					},
 					{
+						label: 'Yearly sum (projected)',
+						data: yearlySum.map((i: any) => (i.year >= curYear ? i.sumPrecipitation : null)),
+						borderColor: 'rgba(0,0,255, 0.1)',
+						backgroundColor: 'rgba(0,0,255,0.2)',
+						pointRadius: 2,
+						borderDash: [4, 4]
+					},
+					{
 						label: 'Trend',
 						data: linTrend.predictions.map((i: any) =>
-							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
+							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: 'rgba(0,0,200,0.7)',
 						backgroundColor: 'rgba(0,0,255,0.3)',
@@ -112,16 +136,24 @@
 					labels: yearlySum.map((i: any) => i.year),
 					datasets: [
 						{
-							label: 'Dry days per year',
-							data: dryDays.map((i: any) => i.dryDayN),
+							label: 'Dry days per year (observed)',
+							data: dryDays.map((i: any) => (i.year < curYear ? i.dryDayN : null)),
 							borderColor: 'rgba(0,0,255, 0.1)',
 							backgroundColor: 'rgba(0,0,255,0.2)',
 							pointRadius: 2
 						},
 						{
+							label: 'Dry days per year (projected)',
+							data: dryDays.map((i: any) => (i.year >= curYear ? i.dryDayN : null)),
+							borderColor: 'rgba(0,0,255, 0.1)',
+							backgroundColor: 'rgba(0,0,255,0.2)',
+							pointRadius: 2,
+							borderDash: [4, 4]
+						},
+						{
 							label: 'Trend',
 							data: linTrend_dryDays.predictions.map((i: any) =>
-								i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
+								i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
 							),
 							borderColor: 'rgba(0,0,200,0.7)',
 							backgroundColor: 'rgba(0,0,255,0.3)',
@@ -134,17 +166,24 @@
 					labels: yearlySum.map((i: any) => i.year),
 					datasets: [
 						{
-							label: 'Strongest single-day rainfall',
-							data: yearlySum.map((i: any) => i.strongestRain),
+							label: 'Strongest single-day rainfall (observed)',
+							data: yearlySum.map((i: any) => (i.year < curYear ? i.strongestRain : null)),
+							borderColor: 'rgba(0,0,255, 0.1)',
+							backgroundColor: 'rgba(0,0,255,0.2)',
+							pointRadius: 2
+						},
+						{
+							label: 'Strongest single-day rainfall (projected)',
+							data: yearlySum.map((i: any) => (i.year >= curYear ? i.strongestRain : null)),
 							borderColor: 'rgba(0,0,255, 0.1)',
 							backgroundColor: 'rgba(0,0,255,0.2)',
 							pointRadius: 2,
-                            fill: 2
+							borderDash: [4, 4]
 						},
 						{
 							label: 'Trend',
 							data: linTrend_strongestRain.predictions.map((i: any) =>
-								i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
+								i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
 							),
 							borderColor: 'rgba(0,0,200,0.7)',
 							backgroundColor: 'rgba(0,0,255,0.3)',
@@ -161,29 +200,46 @@
 	<div>
 		<div class="mt-8">
 			<h3 class="text-2xl w-full text-center my-4">
-                {#if totalDelta && firstTrendPoint}
-                    {#if type == 'rain'}
-                        <CloudRainIcon class="inline mr-2" />
-                        Amount of yearly rainfall: {totalDelta && Math.abs(totalDelta)}{unit}
-                    {:else}
-                        <CloudSnowIcon class="inline mr-2" />
-                        Amount of yearly snowfall: {totalDelta && Math.abs(totalDelta)}{unit}
-                    {/if}
-                    {#if totalDelta && totalDelta > 0}
-                        more
-                    {:else if totalDelta && totalDelta < 0}
-                        less
-                    {/if}
-                    ({totalDelta > 0 ? '+' : ''}{ Math.round(10 * 100 * (totalDelta / firstTrendPoint)) / 10 }%)
-                {/if}
+				{#if type == 'rain'}
+					<CloudRainIcon class="inline mr-2" />
+					Amount of yearly rainfall
+				{:else}
+					<CloudSnowIcon class="inline mr-2" />
+					Amount of yearly snowfall
+				{/if}
 			</h3>
+			<h4 class="text-xl w-full text-center">
+                {#if todayDelta && firstTrendPoint}
+					{todayDelta && Math.abs(todayDelta)}{unit}
+					{#if todayDelta && todayDelta > 0}
+						more
+					{:else if todayDelta && todayDelta < 0}
+						less
+					{/if}
+					or {todayDelta > 0 ? '+' : ''}{Math.round(10 * 100 * (todayDelta / firstTrendPoint)) / 10}%
+                     until today<br />
+				{/if}
+				{#if totalDelta && firstTrendPoint}
+					{totalDelta && Math.abs(totalDelta)}{unit}
+					{#if totalDelta && totalDelta > 0}
+						more
+					{:else if totalDelta && totalDelta < 0}
+						less
+					{/if}
+					or {totalDelta > 0 ? '+' : ''}{Math.round(10 * 100 * (totalDelta / firstTrendPoint)) / 10}%
+                     until 2050
+				{/if}
+			</h4>
 			<h4 class="text-xl m-4">Total yearly {type == 'rain' ? 'rainfall' : 'snowfall'}</h4>
 			<p>
 				{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
-					In the 1950s, the average year saw <strong
+					In the {firstYear}s, the average year saw <strong
 						>{firstTrendPoint}{unit}{type == 'rain' ? ' of rainfall' : ' of snowfall'}
 					</strong>. These days, the average yearly sum is
-					<strong>{lastTrendPoint}{unit}</strong>. That is a total change of about {Math.abs(totalDelta)}{unit}.
+					<strong>{thisYearTrendPoint}{unit}</strong>. Until 2050, this is projected to change
+                    to <strong>{lastTrendPoint}{unit}</strong>. That is a total change of about {Math.abs(
+						totalDelta
+					)}{unit}.
 				{/if}
 			</p>
 			{#if plotData}
@@ -193,38 +249,38 @@
 				/>
 			{/if}
 			{#if type == 'rain'}
-				<h4 class="text-xl m-4 mt-8">Number of dry days</h4>
-				<p>
-					{#if lastTrendPoint2 && firstTrendPoint2}
-						In the 1950s, the average year had <strong
-							>{firstTrendPoint2} dry days per year
-						</strong>. These days, the average is is
-						<strong>{lastTrendPoint2} days</strong>.
-						{#if lastTrendPoint2 > firstTrendPoint2}
-							Longer dry periods pose challenges to agriculture and water supply.
-						{/if}
-					{/if}
-				</p>
-				{#if plotData2}
-					<Line
-						data={plotData2}
-						options={{ spanGaps: true, plugins: { legend: { display: false } } }}
-					/>
-				{/if}
+                {#if true === false}
+                    <!-- Leave this out for now as the projection has way more 0-rainfall-forecasts that make the
+                    projection seem unbelievable -->
+                    <h4 class="text-xl m-4 mt-8">Number of dry days</h4>
+                    <p>
+                        {#if lastTrendPoint2 && firstTrendPoint2}
+                            In the {firstYear}s, the average year had <strong
+                                >{firstTrendPoint2} dry days per year
+                            </strong>. These days, the average is is
+                            <strong>{thisYearTrendPoint2} days</strong>. Until {lastYear}, 
+                            this is projected to change to <strong>{lastTrendPoint2} days</strong>.
+                            {#if lastTrendPoint2 > firstTrendPoint2}
+                                Longer dry periods pose challenges to agriculture and water supply.
+                            {/if}
+                        {/if}
+                    </p>
+                    {#if plotData2}
+                        <Line
+                            data={plotData2}
+                            options={{ spanGaps: true, plugins: { legend: { display: false } } }}
+                        />
+                    {/if}
+                {/if}
 				<h4 class="text-xl m-4 mt-8">Strongest daily rainfall</h4>
 				<p>
 					{#if lastTrendPoint3 && firstTrendPoint3}
-						In the 1950s, the day with the most rainfall had <strong
+						In the {firstYear}s, the day with the most rainfall had <strong
 							>{firstTrendPoint3}{unit} of rainfall in a single day
 						</strong>. By now, this has changed to
-						<strong>{lastTrendPoint3}{unit}</strong>. In many places on earth, we see stronger daily
-						rainfalls.
-						{#if 
-                            lastTrendPoint2 && firstTrendPoint2 && 
-                            lastTrendPoint2 > firstTrendPoint2 && 
-                            lastTrendPoint3 > firstTrendPoint3 && 
-                            (lastTrendPoint2-firstTrendPoint2) / firstTrendPoint2 > 0.03 &&
-                            (lastTrendPoint3-firstTrendPoint3) / firstTrendPoint3 > 0.03 }
+						<strong>{thisYearTrendPoint3}{unit}</strong>. In many places on earth, we see stronger daily
+						rainfalls. Until {lastYear}, this is projected to change to <strong>{lastTrendPoint3}{unit}</strong>.
+						{#if true === false && lastTrendPoint2 && firstTrendPoint2 && lastTrendPoint2 > firstTrendPoint2 && lastTrendPoint3 > firstTrendPoint3 && (lastTrendPoint2 - firstTrendPoint2) / firstTrendPoint2 > 0.03 && (lastTrendPoint3 - firstTrendPoint3) / firstTrendPoint3 > 0.03}
 							The combination of more dry days yet stronger daily rainfall means that there is a
 							tendency for the soil to be either dried out or overwhelmed with water. This is
 							problematic for agriculture as plants are not supplied with a constant enough stream
@@ -242,7 +298,5 @@
 		</div>
 	</div>
 {:else}
-    <p>
-        No relevant data found.
-    </p>
+	<p>No relevant data found.</p>
 {/if}

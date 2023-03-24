@@ -27,12 +27,18 @@
 	let yearlyAverages: any = null
 	let plotData: any = null
 	let firstTrendPoint: number
+	let thisYearTrendPoint: number
 	let lastTrendPoint: number
 	let totalDelta: number | null = null
+	let todayDelta: number | null = null
 	let gradient: number | null = null
+	let lastYear: number | null = null
+	let firstYear: number | null = null
+	let curYear: number = new Date().getFullYear()
 
 	let plotData2: any = null
 	let firstTrendPoint2: number
+	let thisYearTrendPoint2: number
 	let lastTrendPoint2: number
 
 	$: {
@@ -87,57 +93,92 @@
 			const linTrendLow = LinearRegression(yearlyAverages.map((i: any) => [i.year, i.avgDailyLow]))
 			const linTrendSD = LinearRegression(specialDays.map((i: any) => [i.year, i.noSpecialDays]))
 
+			// trendpoints for daily high values
 			firstTrendPoint = Math.round(linTrendHigh.predictions[0][1] * 10) / 10
+			thisYearTrendPoint =
+				Math.round(linTrendHigh.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 			lastTrendPoint =
 				Math.round(linTrendHigh.predictions[linTrendHigh.predictions.length - 1][1] * 10) / 10
+
+			// trendpoints for special day values
 			firstTrendPoint2 = Math.round(linTrendSD.predictions[0][1] * 10) / 10
+			thisYearTrendPoint2 =
+				Math.round(linTrendSD.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 			lastTrendPoint2 =
 				Math.round(linTrendSD.predictions[linTrendSD.predictions.length - 1][1] * 10) / 10
 			gradient = Math.round(linTrendHigh.gradient * 10 * 10) / 10 // per decade
 			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 10) / 10
+			todayDelta = Math.round((thisYearTrendPoint - firstTrendPoint) * 10) / 10
 
-			const lastYear = linTrendHigh.predictions[linTrendHigh.predictions.length - 1][0]
+			firstYear = linTrendHigh.predictions[0][0]
+			lastYear = linTrendHigh.predictions[linTrendHigh.predictions.length - 1][0]
 
 			plotData = {
 				labels: yearlyAverages.map((i: any) => i.year),
 				datasets: [
 					{
-						label: 'Avg. daily high',
-						data: yearlyAverages.map((i: any) => i.avgDailyHigh),
-						borderColor: 'rgba(255,0,0,0.1)',
+						label: 'Avg. daily high (observed)',
+						data: yearlyAverages.map((i: any) => (i.year < curYear ? i.avgDailyHigh : null)),
+						borderColor: 'rgba(255,0,0,0.3)',
 						backgroundColor: 'rgba(255,0,0,0.05)',
 						pointRadius: 2,
-                        fill: {
-                            target: '+1',
-                            above: 'rgba(255, 0, 0, 0.05)',
-                            below: 'rgba(255, 0, 0, 0.05)'
-                        }
+						fill: {
+							target: '+2',
+							above: 'rgba(255, 0, 0, 0.05)',
+							below: 'rgba(255, 0, 0, 0.05)'
+						}
+					},
+					{
+						label: 'Avg. daily high (projected)',
+						data: yearlyAverages.map((i: any) => (i.year >= curYear ? i.avgDailyHigh : null)),
+						borderColor: 'rgba(255,0,0,0.3)',
+						backgroundColor: 'rgba(255,0,0,0.05)',
+						pointRadius: 2,
+						fill: {
+							target: '+1',
+							above: 'rgba(255, 0, 0, 0.03)',
+							below: 'rgba(255, 0, 0, 0.03)'
+						},
+						borderDash: [4, 4]
 					},
 					{
 						label: 'Avg. daily high (trend)',
 						data: linTrendHigh.predictions.map((i: any) =>
-							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
+							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: 'rgba(255,0,0,0.7)',
 						backgroundColor: 'rgba(255,0,0,0.3)',
 						pointRadius: 5
 					},
 					{
-						label: 'Avg. daily low',
-						data: yearlyAverages.map((i: any) => i.avgDailyLow),
-						borderColor: 'rgba(0,0,255,0.1)',
+						label: 'Avg. daily low (observed)',
+						data: yearlyAverages.map((i: any) => (i.year < curYear ? i.avgDailyLow : null)),
+						borderColor: 'rgba(0,0,255,0.3)',
 						backgroundColor: 'rgba(0,0,255,0.02)',
 						pointRadius: 2,
-                        fill: {
-                            target: '+1',
-                            above: 'rgba(0, 0, 255, 0.05)',
-                            below: 'rgba(0, 0, 255, 0.05)'
-                        }
+						fill: {
+							target: '+2',
+							above: 'rgba(0, 0, 255, 0.05)',
+							below: 'rgba(0, 0, 255, 0.05)'
+						}
+					},
+					{
+						label: 'Avg. daily low (projected)',
+						data: yearlyAverages.map((i: any) => (i.year >= curYear ? i.avgDailyLow : null)),
+						borderColor: 'rgba(0,0,255,0.3)',
+						backgroundColor: 'rgba(0,0,255,0.02)',
+						pointRadius: 2,
+						fill: {
+							target: '+1',
+							above: 'rgba(0, 0, 255, 0.03)',
+							below: 'rgba(0, 0, 255, 0.03)'
+						},
+						borderDash: [4, 4]
 					},
 					{
 						label: 'Avg. daily low (trend)',
 						data: linTrendLow.predictions.map((i: any) =>
-							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
+							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: 'rgba(0,0,200,0.7)',
 						backgroundColor: 'rgba(0,0,255,0.3)',
@@ -146,23 +187,32 @@
 				]
 			}
 
+			let sdPlotLabel =
+				type == 'Summer'
+					? 'Number of days >= ' + hotCutoff + '°' + unit
+					: 'Number of days <= ' + freezingCutoff + '°' + unit
 			plotData2 = {
 				labels: specialDays.map((i: any) => i.year),
 				datasets: [
 					{
-						label:
-							type == 'Summer'
-								? 'Number of days >= ' + hotCutoff + '°' + unit
-								: 'Number of days <= ' + freezingCutoff + '°' + unit,
-						data: specialDays.map((i: any) => i.noSpecialDays),
+						label: sdPlotLabel + ' (observed)',
+						data: specialDays.map((i: any) => (i.year < curYear ? i.noSpecialDays : null)),
 						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,255,0.1)',
 						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.2)' : 'rgba(0,0,255,0.2)',
 						pointRadius: 2
 					},
 					{
+						label: sdPlotLabel + ' (projected)',
+						data: specialDays.map((i: any) => (i.year >= curYear ? i.noSpecialDays : null)),
+						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,255,0.1)',
+						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.2)' : 'rgba(0,0,255,0.2)',
+						pointRadius: 2,
+						borderDash: [4, 4]
+					},
+					{
 						label: 'Trend',
 						data: linTrendSD.predictions.map((i: any) =>
-							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
+							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.7)' : 'rgba(0,0,255,0.7)',
 						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.3)' : 'rgba(0,0,255,0.3)',
@@ -176,32 +226,44 @@
 
 <div>
 	<div class="mt-8">
-		<h3 class="text-2xl w-full text-center my-4">
+		<h3 class="text-2xl w-full text-center my-2">
 			<ThermometerIcon class="inline mr-2" />
-			{type}: {totalDelta && Math.abs(totalDelta)}°{unit}
+			{type}
+		</h3>
+		<h4 class="text-xl w-full text-center">
+			{todayDelta && Math.abs(todayDelta)}°{unit}
+			{#if todayDelta && todayDelta > 0}
+				hotter
+			{:else if todayDelta && todayDelta < 0}
+				colder
+			{/if} until today,
+
+			{totalDelta && Math.abs(totalDelta)}°{unit}
 			{#if totalDelta && totalDelta > 0}
 				hotter
 			{:else if totalDelta && totalDelta < 0}
 				colder
-			{/if}
-		</h3>
+			{/if} until {lastYear}
+		</h4>
 		<h4 class="text-xl m-4 mt-8">Average daily {type == 'Summer' ? 'high' : 'low'}</h4>
 		<p>
-			{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
+			{#if lastTrendPoint && thisYearTrendPoint && firstTrendPoint && gradient && totalDelta}
 				{#if type == 'Summer'}
-					In the 1950s, the average summer day had a daily high of <strong
-						>{firstTrendPoint}°{unit}</strong
-					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
-					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
+					In the {firstYear}s, the average summer day had a daily high of
+					<strong>{firstTrendPoint}°{unit}</strong>. These days, the average daily high is
+					<strong>{thisYearTrendPoint}°{unit}</strong>. Until {lastYear}, the daily high is
+					projected to change to <strong>{lastTrendPoint}°{unit}</strong>. That's a change of about {gradient}°{unit}
+					per decade and is a total change of {totalDelta}°{unit}
 					! Oh, by the way, summer means {latitude > 0
 						? 'June through August'
 						: 'December through February'} here.
 				{/if}
 				{#if type == 'Winter'}
-					In the 1950s, the average winter day had a daily high of <strong
-						>{firstTrendPoint}°{unit}</strong
-					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
-					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
+					In the {firstYear}s, the average winter day had a daily high of
+					<strong>{firstTrendPoint}°{unit}</strong>. These days, the average daily high is
+					<strong>{thisYearTrendPoint}°{unit}</strong>. Until {lastYear}, this is projected to
+					change to <strong>{lastTrendPoint}°{unit}</strong>. That's a change of about {gradient}°{unit}
+					per decade and is a total change of {totalDelta}°{unit}
 					! By winter days I mean days from {latitude > 0
 						? 'December to February'
 						: 'June to August'}.
@@ -229,19 +291,21 @@
 				{#if type == 'Summer'}
 					In the plot below, you can see the number of days in the summer months where daily maximum
 					temperatures were &geq;{hotCutoff}°{unit}. For many places on earth, we can see that this
-					number of days has greatly increased in the past 60 years. In this case, the number of hot
+					number of days has greatly increased in the past decades. In this case, the number of hot
 					days has changed
 					<strong
-						>from {firstTrendPoint2} days in the 1950s to {lastTrendPoint2} days in present time.</strong
+						>from {firstTrendPoint2} days in the 1950s to {thisYearTrendPoint2} days in present time.</strong
 					>
+					Until {lastYear}, this is projected to change to {lastTrendPoint2} days.
 				{:else}
 					Below, you can see the number of days in the winter months where daily minimum
 					temperatures were &leq;{freezingCutoff}°{unit}. For many places on earth, we can see that
 					this number of days is steadily decreasing. In this case, the number of freezing days has
 					changed
 					<strong
-						>from {firstTrendPoint2} days in the 1950s to {lastTrendPoint2} days in present time.</strong
+						>from {firstTrendPoint2} days in the 1950s to {thisYearTrendPoint2} days in present time.</strong
 					>
+					Until {lastYear}, this is projected to change to {lastTrendPoint2} days.
 				{/if}
 			</p>
 			{#if plotData2}
@@ -250,8 +314,8 @@
 					options={{ spanGaps: true, plugins: { legend: { display: false } } }}
 				/>
 			{/if}
-        {:else}
-            No data found.
+		{:else}
+			No data found.
 		{/if}
 	</div>
 </div>

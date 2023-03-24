@@ -1,7 +1,7 @@
 <script lang="ts">
 	import LocationFinder from '$lib/LocationFinder.svelte'
 	import Footer from '$lib/Footer.svelte'
-	import getHistoricalWeatherData from '$lib/weatherData'
+	import getCombinedHistoricalAndForecastWeatherData from '$lib/weatherData'
 	import { inject } from '@vercel/analytics'
 	import { onMount } from 'svelte'
 	import UnitPicker from '$lib/UnitPicker.svelte'
@@ -62,10 +62,10 @@
 
 	$: {
 		if (lat && lon) {
-			wthDataPromise = getHistoricalWeatherData(lat, lon).then((res) => {
+			wthDataPromise = getCombinedHistoricalAndForecastWeatherData(lat, lon).then((res) => {
 				if (!res) return
-				if (!res.daily) return
-				originalWthData = res.daily
+
+				originalWthData = res
 			})
 		}
 	}
@@ -104,6 +104,11 @@
 			average. The graphics below are designed to give you an idea of how the climate has changed to
 			this date for the place where you live.
 		</p>
+        <p class="mt-4">
+            The data also incorporates climate projections up until 2050. Please keep in mind that
+            such long-term projections are always subject to assumptions and therefore only represent
+            our current best guess as to what might happen.
+        </p>
 		<br />
 	</div>
 	<div>
