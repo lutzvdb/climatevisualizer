@@ -116,7 +116,7 @@
 					{
 						label: 'Avg. daily high (trend)',
 						data: linTrendHigh.predictions.map((i: any) =>
-							i[0] == 1960 || i[0] == lastYear ? i[1] : undefined
+							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: 'rgba(255,0,0,0.7)',
 						backgroundColor: 'rgba(255,0,0,0.3)',
@@ -137,7 +137,7 @@
 					{
 						label: 'Avg. daily low (trend)',
 						data: linTrendLow.predictions.map((i: any) =>
-							i[0] == 1960 || i[0] == lastYear ? i[1] : undefined
+							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: 'rgba(0,0,200,0.7)',
 						backgroundColor: 'rgba(0,0,255,0.3)',
@@ -162,7 +162,7 @@
 					{
 						label: 'Trend',
 						data: linTrendSD.predictions.map((i: any) =>
-							i[0] == 1960 || i[0] == lastYear ? i[1] : undefined
+							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.7)' : 'rgba(0,0,255,0.7)',
 						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.3)' : 'rgba(0,0,255,0.3)',
@@ -189,7 +189,7 @@
 		<p>
 			{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
 				{#if type == 'Summer'}
-					In the 1960s, the average summer day had a daily high of <strong
+					In the 1950s, the average summer day had a daily high of <strong
 						>{firstTrendPoint}°{unit}</strong
 					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
 					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
@@ -198,7 +198,7 @@
 						: 'December through February'} here.
 				{/if}
 				{#if type == 'Winter'}
-					In the 1960s, the average winter day had a daily high of <strong
+					In the 1950s, the average winter day had a daily high of <strong
 						>{firstTrendPoint}°{unit}</strong
 					>. These days, the average daily high is <strong>{lastTrendPoint}°{unit}</strong>. That's
 					a change of about {gradient}°{unit} per decade and is a total change of {totalDelta}°{unit}
@@ -232,7 +232,7 @@
 					number of days has greatly increased in the past 60 years. In this case, the number of hot
 					days has changed
 					<strong
-						>from {firstTrendPoint2} days in the 1960s to {lastTrendPoint2} days in present time.</strong
+						>from {firstTrendPoint2} days in the 1950s to {lastTrendPoint2} days in present time.</strong
 					>
 				{:else}
 					Below, you can see the number of days in the winter months where daily minimum
@@ -240,7 +240,7 @@
 					this number of days is steadily decreasing. In this case, the number of freezing days has
 					changed
 					<strong
-						>from {firstTrendPoint2} days in the 1960s to {lastTrendPoint2} days in present time.</strong
+						>from {firstTrendPoint2} days in the 1950s to {lastTrendPoint2} days in present time.</strong
 					>
 				{/if}
 			</p>

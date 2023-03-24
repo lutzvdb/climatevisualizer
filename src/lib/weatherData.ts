@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns'
 export default async function getHistoricalWeatherData(
     lat: number,
     lon: number,
-    dateFrom: Date = parseISO('1960-01-01'),
+    dateFrom: Date = parseISO('1950-01-01'),
     dateTo: Date = ((new Date()).getMonth() > 10) ?
         new Date() :
         parseISO((Number(format(new Date(), 'yyyy')) - 1) + '-12-31')

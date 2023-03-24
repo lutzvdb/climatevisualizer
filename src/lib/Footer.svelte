@@ -49,7 +49,7 @@
 		</a>.
 	</p>
 	<p class="mt-2">
-		Please note that the underlying data is based on a 30km grid model. Usually, this makes no
+		Please note that the underlying data is based on a ~11km grid model. Usually, this makes no
 		difference as climate conditions don't often change that much within such small distances.
 		However, in extreme situations, the data displayed can be misleading, especially when looking at
 		places in small valleys. For example, looking at the data for Quito, Ecuador actually displays
