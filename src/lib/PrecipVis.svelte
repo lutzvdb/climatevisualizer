@@ -98,7 +98,7 @@
 					{
 						label: 'Trend',
 						data: linTrend.predictions.map((i: any) =>
-							i[0] == 1960 || i[0] == lastYear ? i[1] : undefined
+							i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
 						),
 						borderColor: 'rgba(0,0,200,0.7)',
 						backgroundColor: 'rgba(0,0,255,0.3)',
@@ -121,7 +121,7 @@
 						{
 							label: 'Trend',
 							data: linTrend_dryDays.predictions.map((i: any) =>
-								i[0] == 1960 || i[0] == lastYear ? i[1] : undefined
+								i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
 							),
 							borderColor: 'rgba(0,0,200,0.7)',
 							backgroundColor: 'rgba(0,0,255,0.3)',
@@ -144,7 +144,7 @@
 						{
 							label: 'Trend',
 							data: linTrend_strongestRain.predictions.map((i: any) =>
-								i[0] == 1960 || i[0] == lastYear ? i[1] : undefined
+								i[0] == 1950 || i[0] == lastYear ? i[1] : undefined
 							),
 							borderColor: 'rgba(0,0,200,0.7)',
 							backgroundColor: 'rgba(0,0,255,0.3)',
@@ -180,7 +180,7 @@
 			<h4 class="text-xl m-4">Total yearly {type == 'rain' ? 'rainfall' : 'snowfall'}</h4>
 			<p>
 				{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
-					In the 1960s, the average year saw <strong
+					In the 1950s, the average year saw <strong
 						>{firstTrendPoint}{unit}{type == 'rain' ? ' of rainfall' : ' of snowfall'}
 					</strong>. These days, the average yearly sum is
 					<strong>{lastTrendPoint}{unit}</strong>. That is a total change of about {Math.abs(totalDelta)}{unit}.
@@ -196,7 +196,7 @@
 				<h4 class="text-xl m-4 mt-8">Number of dry days</h4>
 				<p>
 					{#if lastTrendPoint2 && firstTrendPoint2}
-						In the 1960s, the average year had <strong
+						In the 1950s, the average year had <strong
 							>{firstTrendPoint2} dry days per year
 						</strong>. These days, the average is is
 						<strong>{lastTrendPoint2} days</strong>.
@@ -214,7 +214,7 @@
 				<h4 class="text-xl m-4 mt-8">Strongest daily rainfall</h4>
 				<p>
 					{#if lastTrendPoint3 && firstTrendPoint3}
-						In the 1960s, the day with the most rainfall had <strong
+						In the 1950s, the day with the most rainfall had <strong
 							>{firstTrendPoint3}{unit} of rainfall in a single day
 						</strong>. By now, this has changed to
 						<strong>{lastTrendPoint3}{unit}</strong>. In many places on earth, we see stronger daily
