@@ -26,6 +26,7 @@
 
 	let yearlyAverages: any = null
 	let plotData: any = null
+	let plotDataLow: any = null
 	let firstTrendPoint: number
 	let thisYearTrendPoint: number
 	let lastTrendPoint: number
@@ -149,7 +150,13 @@
 						borderColor: 'rgba(255,0,0,0.7)',
 						backgroundColor: 'rgba(255,0,0,0.3)',
 						pointRadius: 5
-					},
+					}
+				]
+			}
+
+			plotDataLow = {
+				labels: yearlyAverages.map((i: any) => i.year),
+				datasets: [
 					{
 						label: 'Avg. daily low (observed)',
 						data: yearlyAverages.map((i: any) => (i.year < curYear ? i.avgDailyLow : null)),
@@ -236,7 +243,7 @@
 				hotter
 			{:else if todayDelta && todayDelta < 0}
 				colder
-			{/if} until today,
+			{/if} until today,<br />
 
 			{totalDelta && Math.abs(totalDelta)}°{unit}
 			{#if totalDelta && totalDelta > 0}
@@ -245,7 +252,7 @@
 				colder
 			{/if} until {lastYear}
 		</h4>
-		<h4 class="text-xl m-4 mt-8">Average daily {type == 'Summer' ? 'high' : 'low'}</h4>
+		<h4 class="text-xl m-4 mt-8">Average daily high/low</h4>
 		<p>
 			{#if lastTrendPoint && thisYearTrendPoint && firstTrendPoint && gradient && totalDelta}
 				{#if type == 'Summer'}
@@ -270,9 +277,28 @@
 				{/if}
 			{/if}
 		</p>
-		{#if plotData}
-			<Line data={plotData} options={{ spanGaps: true, plugins: { legend: { display: false } } }} />
-		{/if}
+		<div class="mt-8">
+			{#if plotData}
+				<Line
+					data={plotData}
+					options={{ spanGaps: true, plugins: { title: {
+                        display: true,
+                        text: 'Daily temperature high'
+                    },legend: { display: false } } }}
+				/>
+			{/if}
+			{#if plotDataLow}
+				<Line
+					data={plotDataLow}
+					options={{ spanGaps: true, plugins: { 
+                        title: {
+                            display: true,
+                            text: 'Daily temperature low'
+                        },
+                        legend: { display: false } } }}
+				/>
+			{/if}
+		</div>
 		<h4 class="text-xl m-4 mt-8">
 			{#if type == 'Summer'}
 				Number of days hotter than
@@ -311,7 +337,14 @@
 			{#if plotData2}
 				<Line
 					data={plotData2}
-					options={{ spanGaps: true, plugins: { legend: { display: false } } }}
+					options={{ spanGaps: true, plugins: { title: {
+                        display: true,
+                        text: type == 'summer' ? 
+                            'Number of days hotter than ' + hotCutoff + '°' + unit
+                            :
+                            'Number of freezing days'
+                    },
+                    legend: { display: false } } }}
 				/>
 			{/if}
 		{:else}

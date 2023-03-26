@@ -246,7 +246,11 @@
 			{#if plotData}
 				<Line
 					data={plotData}
-					options={{ spanGaps: true, plugins: { legend: { display: false } } }}
+					options={{ spanGaps: true, plugins: { title: {
+                        display: true,
+                        text: 'Total yearly ' + (type == 'rain' ? 'rainfall' : 'snowfall')
+                    },
+                    legend: { display: false } } }}
 				/>
 			{/if}
 			{#if type == 'rain'}
@@ -265,7 +269,11 @@
 				{#if plotData2}
 					<Line
 						data={plotData2}
-						options={{ spanGaps: true, plugins: { legend: { display: false } } }}
+						options={{ spanGaps: true, plugins: { title: {
+                            display: true,
+                            text: 'Number of dry days'
+                        },
+                        legend: { display: false } } }}
 					/>
 				{/if}
 				<h4 class="text-xl m-4 mt-8">Strongest daily rainfall</h4>
@@ -288,7 +296,11 @@
 				{#if plotData3}
 					<Line
 						data={plotData3}
-						options={{ spanGaps: true, plugins: { legend: { display: false } } }}
+						options={{ spanGaps: true, plugins: { title: {
+                            display: true,
+                            text: 'Strongest daily rainfall'
+                        },
+                        legend: { display: false } } }}
 					/>
 				{/if}
 			{/if}

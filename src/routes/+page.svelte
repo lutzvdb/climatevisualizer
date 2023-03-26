@@ -11,6 +11,7 @@
 	import {
 		Chart as ChartJS,
 		Tooltip,
+        Title,
 		LineElement,
 		LinearScale,
 		PointElement,
@@ -77,7 +78,7 @@
 		// lazy-load components for faster initial page load
 		TempVis = (await import('$lib/TempVis.svelte')).default
 		PrecipVis = (await import('$lib/PrecipVis.svelte')).default
-		ChartJS.register(Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
+		ChartJS.register(Title, Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
 
 		if (dev) {
 			console.log('Not running analytics in development mode.')
