@@ -34,7 +34,7 @@
 	let gradient: number | null = null
 	let lastYear: number | null = null
 	let firstYear: number | null = null
-	let curYear: number = new Date().getFullYear()
+	let curYear: number = new Date().getFullYear() - 1 // past year has full true measurements
 
 	let plotData2: any = null
 	let firstTrendPoint2: number

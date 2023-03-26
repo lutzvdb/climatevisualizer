@@ -8,14 +8,14 @@
 	import { dev } from '$app/environment'
 	import Card from '$lib/Card.svelte'
 
-    import {
+	import {
 		Chart as ChartJS,
 		Tooltip,
 		LineElement,
 		LinearScale,
 		PointElement,
 		CategoryScale,
-        Filler
+		Filler
 	} from 'chart.js'
 
 	let lat: number | null = null
@@ -77,7 +77,7 @@
 		// lazy-load components for faster initial page load
 		TempVis = (await import('$lib/TempVis.svelte')).default
 		PrecipVis = (await import('$lib/PrecipVis.svelte')).default
-        ChartJS.register(Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
+		ChartJS.register(Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
 
 		if (dev) {
 			console.log('Not running analytics in development mode.')
@@ -104,11 +104,11 @@
 			average. The graphics below are designed to give you an idea of how the climate has changed to
 			this date for the place where you live.
 		</p>
-        <p class="mt-4">
-            The data also incorporates climate projections up until 2050. Please keep in mind that
-            such long-term projections are always subject to assumptions and therefore only represent
-            our current best guess as to what might happen.
-        </p>
+		<p class="mt-4">
+			The data also incorporates climate projections up until 2050. Please keep in mind that such
+			long-term projections are always subject to assumptions and therefore only represent our
+			current best guess as to what might happen.
+		</p>
 		<br />
 	</div>
 	<div>
