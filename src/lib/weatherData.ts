@@ -1,5 +1,4 @@
 import { format, parseISO, addDays, getOverlappingDaysInIntervals } from 'date-fns'
-import { ungzip } from 'pako'
 
 export default async function getCombinedHistoricalAndForecastWeatherData(
     lat: number,
