@@ -5,13 +5,14 @@
 	import { inject } from '@vercel/analytics'
 	import { onMount } from 'svelte'
 	import UnitPicker from '$lib/UnitPicker.svelte'
+	import ClimateModelPicker from '$lib/ClimateModelPicker.svelte'
 	import { dev } from '$app/environment'
 	import Card from '$lib/Card.svelte'
 
 	import {
 		Chart as ChartJS,
 		Tooltip,
-        Title,
+		Title,
 		LineElement,
 		LinearScale,
 		PointElement,
@@ -26,6 +27,7 @@
 	let originalWthData: any = null
 	let wthDataPromise: Promise<any> | null = null
 	let unit: string = 'metric'
+	let climateModel: string = 'MRI_AGCM3_2_S'
 	let activeTab: number = 1
 
 	if (dev) {
@@ -37,7 +39,25 @@
 		if (originalWthData) {
 			// we received new weather data!
 			// first, create a deep copy of the original data
-			let newWthData = JSON.parse(JSON.stringify(originalWthData))
+			let wthDataCopy = JSON.parse(JSON.stringify(originalWthData))
+
+			// select requested weather model
+			wthDataCopy.forecast['temperature_2m_max'] =
+				wthDataCopy.forecast['temperature_2m_max_' + climateModel]
+            wthDataCopy.forecast['temperature_2m_min'] =
+				wthDataCopy.forecast['temperature_2m_min_' + climateModel]
+            wthDataCopy.forecast['rain_sum'] =
+				wthDataCopy.forecast['rain_sum_' + climateModel]
+            wthDataCopy.forecast['snowfall_sum'] =
+				wthDataCopy.forecast['snowfall_sum_' + climateModel]
+			
+			let newWthData: any = {}
+
+            // UNIONize history and forecast data
+			Object.keys(wthDataCopy.history).forEach((k) => {
+				newWthData[k] = wthDataCopy.history[k].concat(wthDataCopy.forecast[k])
+			})
+
 			// now, convert to correct unit
 			// we requested in metric units, so we only have to do conversion
 			// for imperial units
@@ -115,8 +135,9 @@
 	<div>
 		<LocationFinder bind:lat bind:lon bind:prettyLocName />
 	</div>
-	<div>
+	<div class="flex flex-col md:flex-row gap-4 items-center">
 		<UnitPicker bind:unit />
+		<ClimateModelPicker bind:climateModel />
 	</div>
 </Card>
 {#if lat && lon}

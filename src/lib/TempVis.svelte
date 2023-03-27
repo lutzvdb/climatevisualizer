@@ -88,31 +88,54 @@
 				})
 				.objects()
 
-			const linTrendHigh = LinearRegression(
-				yearlyAverages.map((i: any) => [i.year, i.avgDailyHigh])
+			const linTrendHighPast = LinearRegression(
+				yearlyAverages
+					.filter((i: any) => i.year <= curYear)
+					.map((i: any) => [i.year, i.avgDailyHigh])
 			)
-			const linTrendLow = LinearRegression(yearlyAverages.map((i: any) => [i.year, i.avgDailyLow]))
-			const linTrendSD = LinearRegression(specialDays.map((i: any) => [i.year, i.noSpecialDays]))
+			const linTrendHighFuture = LinearRegression(
+				yearlyAverages
+					.filter((i: any) => i.year > curYear)
+					.map((i: any) => [i.year, i.avgDailyHigh])
+			)
+			const linTrendLowPast = LinearRegression(
+				yearlyAverages
+					.filter((i: any) => i.year <= curYear)
+					.map((i: any) => [i.year, i.avgDailyLow])
+			)
+			const linTrendLowFuture = LinearRegression(
+				yearlyAverages.filter((i: any) => i.year > curYear).map((i: any) => [i.year, i.avgDailyLow])
+			)
+
+			const linTrendSDPast = LinearRegression(
+				specialDays.filter((i: any) => i.year <= curYear).map((i: any) => [i.year, i.noSpecialDays])
+			)
+			const linTrendSDFuture = LinearRegression(
+				specialDays.filter((i: any) => i.year > curYear).map((i: any) => [i.year, i.noSpecialDays])
+			)
 
 			// trendpoints for daily high values
-			firstTrendPoint = Math.round(linTrendHigh.predictions[0][1] * 10) / 10
+			firstTrendPoint = Math.round(linTrendHighPast.predictions[0][1] * 10) / 10
 			thisYearTrendPoint =
-				Math.round(linTrendHigh.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
+				Math.round(linTrendHighPast.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 			lastTrendPoint =
-				Math.round(linTrendHigh.predictions[linTrendHigh.predictions.length - 1][1] * 10) / 10
+				Math.round(
+					linTrendHighFuture.predictions[linTrendHighFuture.predictions.length - 1][1] * 10
+				) / 10
 
 			// trendpoints for special day values
-			firstTrendPoint2 = Math.round(linTrendSD.predictions[0][1] * 10) / 10
+			firstTrendPoint2 = Math.round(linTrendSDPast.predictions[0][1] * 10) / 10
 			thisYearTrendPoint2 =
-				Math.round(linTrendSD.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
+				Math.round(linTrendSDPast.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 			lastTrendPoint2 =
-				Math.round(linTrendSD.predictions[linTrendSD.predictions.length - 1][1] * 10) / 10
-			gradient = Math.round(linTrendHigh.gradient * 10 * 10) / 10 // per decade
+				Math.round(linTrendSDFuture.predictions[linTrendSDFuture.predictions.length - 1][1] * 10) /
+				10
+
 			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 10) / 10
 			todayDelta = Math.round((thisYearTrendPoint - firstTrendPoint) * 10) / 10
 
-			firstYear = linTrendHigh.predictions[0][0]
-			lastYear = linTrendHigh.predictions[linTrendHigh.predictions.length - 1][0]
+			firstYear = yearlyAverages[0].year
+			lastYear = yearlyAverages[yearlyAverages.length - 1].year
 
 			plotData = {
 				labels: yearlyAverages.map((i: any) => i.year),
@@ -144,9 +167,13 @@
 					},
 					{
 						label: 'Avg. daily high (trend)',
-						data: linTrendHigh.predictions.map((i: any) =>
-							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
-						),
+						data: linTrendHighPast.predictions
+							.map((i: any) => (i[0] == firstYear || i[0] == curYear ? i[1] : undefined))
+							.concat(
+								linTrendHighFuture.predictions.map((i: any) =>
+									i[0] == lastYear ? i[1] : undefined
+								)
+							),
 						borderColor: 'rgba(255,0,0,0.7)',
 						backgroundColor: 'rgba(255,0,0,0.3)',
 						pointRadius: 5
@@ -184,9 +211,11 @@
 					},
 					{
 						label: 'Avg. daily low (trend)',
-						data: linTrendLow.predictions.map((i: any) =>
-							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
-						),
+						data: linTrendLowPast.predictions
+							.map((i: any) => (i[0] == firstYear || i[0] == curYear ? i[1] : undefined))
+							.concat(
+								linTrendLowFuture.predictions.map((i: any) => (i[0] == lastYear ? i[1] : undefined))
+							),
 						borderColor: 'rgba(0,0,200,0.7)',
 						backgroundColor: 'rgba(0,0,255,0.3)',
 						pointRadius: 5
@@ -218,9 +247,11 @@
 					},
 					{
 						label: 'Trend',
-						data: linTrendSD.predictions.map((i: any) =>
-							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
-						),
+						data: linTrendSDPast.predictions
+							.map((i: any) => (i[0] == firstYear || i[0] == curYear ? i[1] : undefined))
+							.concat(
+								linTrendSDFuture.predictions.map((i: any) => (i[0] == lastYear ? i[1] : undefined))
+							),
 						borderColor: type == 'Summer' ? 'rgba(255,0,0,0.7)' : 'rgba(0,0,255,0.7)',
 						backgroundColor: type == 'Summer' ? 'rgba(255,0,0,0.3)' : 'rgba(0,0,255,0.3)',
 						pointRadius: 5
@@ -254,24 +285,20 @@
 		</h4>
 		<h4 class="text-xl m-4 mt-8">Average daily high/low</h4>
 		<p>
-			{#if lastTrendPoint && thisYearTrendPoint && firstTrendPoint && gradient && totalDelta}
+			{#if lastTrendPoint && thisYearTrendPoint && firstTrendPoint && totalDelta}
 				{#if type == 'Summer'}
 					In the {firstYear}s, the average summer day had a daily high of
 					<strong>{firstTrendPoint}°{unit}</strong>. These days, the average daily high is
 					<strong>{thisYearTrendPoint}°{unit}</strong>. Until {lastYear}, the daily high is
-					projected to change to <strong>{lastTrendPoint}°{unit}</strong>. That's a change of about {gradient}°{unit}
-					per decade and is a total change of {totalDelta}°{unit}
-					! Oh, by the way, summer means {latitude > 0
-						? 'June through August'
-						: 'December through February'} here.
+					projected to change to <strong>{lastTrendPoint}°{unit}</strong>. ! Oh, by the way, summer
+					means {latitude > 0 ? 'June through August' : 'December through February'} here.
 				{/if}
 				{#if type == 'Winter'}
 					In the {firstYear}s, the average winter day had a daily high of
 					<strong>{firstTrendPoint}°{unit}</strong>. These days, the average daily high is
 					<strong>{thisYearTrendPoint}°{unit}</strong>. Until {lastYear}, this is projected to
-					change to <strong>{lastTrendPoint}°{unit}</strong>. That's a change of about {gradient}°{unit}
-					per decade and is a total change of {totalDelta}°{unit}
-					! By winter days I mean days from {latitude > 0
+					change to <strong>{lastTrendPoint}°{unit}</strong>. ! By winter days I mean days from {latitude >
+					0
 						? 'December to February'
 						: 'June to August'}.
 				{/if}
@@ -281,21 +308,31 @@
 			{#if plotData}
 				<Line
 					data={plotData}
-					options={{ spanGaps: true, plugins: { title: {
-                        display: true,
-                        text: 'Daily temperature high'
-                    },legend: { display: false } } }}
+					options={{
+						spanGaps: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'Daily temperature high'
+							},
+							legend: { display: false }
+						}
+					}}
 				/>
 			{/if}
 			{#if plotDataLow}
 				<Line
 					data={plotDataLow}
-					options={{ spanGaps: true, plugins: { 
-                        title: {
-                            display: true,
-                            text: 'Daily temperature low'
-                        },
-                        legend: { display: false } } }}
+					options={{
+						spanGaps: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'Daily temperature low'
+							},
+							legend: { display: false }
+						}
+					}}
 				/>
 			{/if}
 		</div>
@@ -337,14 +374,19 @@
 			{#if plotData2}
 				<Line
 					data={plotData2}
-					options={{ spanGaps: true, plugins: { title: {
-                        display: true,
-                        text: type == 'summer' ? 
-                            'Number of days hotter than ' + hotCutoff + '°' + unit
-                            :
-                            'Number of freezing days'
-                    },
-                    legend: { display: false } } }}
+					options={{
+						spanGaps: true,
+						plugins: {
+							title: {
+								display: true,
+								text:
+									type == 'Summer'
+										? 'Number of days hotter than ' + hotCutoff + '°' + unit
+										: 'Number of freezing days'
+							},
+							legend: { display: false }
+						}
+					}}
 				/>
 			{/if}
 		{:else}

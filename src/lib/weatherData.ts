@@ -1,5 +1,48 @@
 import { format, parseISO, addDays, getOverlappingDaysInIntervals } from 'date-fns'
 
+interface singleClimateModel {
+    specifier: string,
+    country: string,
+    link: string
+}
+export const climateModels: singleClimateModel[] = [
+    {
+        specifier: 'CMCC_CM2_VHR4',
+        country: 'Italy',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.CMCC.CMCC-CM2-VHR4'
+    },
+    {
+        specifier: 'FGOALS_f3_H',
+        country: 'China',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.CAS.FGOALS-f3-H'
+    },
+    {
+        specifier: 'HiRAM_SIT_HR',
+        country: 'Taiwan',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.AS-RCEC.HiRAM-SIT-HR'
+    },
+    {
+        specifier: 'MRI_AGCM3_2_S',
+        country: 'Japan',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.MRI.MRI-AGCM3-2-S.highresSST-present'
+    },
+    {
+        specifier: 'EC_Earth3P_HR',
+        country: 'Europe',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.EC-Earth-Consortium.EC-Earth3P-HR'
+    },
+    {
+        specifier: 'MPI_ESM1_2_XR',
+        country: 'Germany',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.MPI-M.MPI-ESM1-2-XR'
+    },
+    {
+        specifier: 'NICAM16_8S',
+        country: 'Japan',
+        link: 'https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.MIROC.NICAM16-8S'
+    }
+]
+
 export default async function getCombinedHistoricalAndForecastWeatherData(
     lat: number,
     lon: number,
@@ -20,11 +63,11 @@ export default async function getCombinedHistoricalAndForecastWeatherData(
 
     if (!resForecast) return
     if (!resHistorical) return
-
-    let resTotal: any = {}
-    Object.keys(resHistorical).forEach(k => { resTotal[k] = resHistorical[k].concat(resForecast[k]) })
-
-    return (resTotal)
+    
+    return ({
+        forecast: resForecast, 
+        history: resHistorical
+    })
 }
 
 async function getGenericDailyDataFromOpenMeteo(
@@ -59,28 +102,24 @@ async function getClimateForecastWeatherData(
     dateFrom: Date,
     dateTo: Date
 ) {
+    const allModels = climateModels.map(m => m.specifier).join(',')
+
     let res = await getGenericDailyDataFromOpenMeteo(
         'https://climate-api.open-meteo.com/v1/climate',
         lat,
         lon,
         dateFrom,
         dateTo,
-        //'&models=CMCC_CM2_VHR4,FGOALS_f3_H,HiRAM_SIT_HR,MRI_AGCM3_2_S,EC_Earth3P_HR,MPI_ESM1_2_XR,NICAM16_8S')
-        '&models=MRI_AGCM3_2_S')
-
-    // for the sake of not averaging out all forecasted peaks, we'll stick to one
-    // model for now: MRI
-    // do post-processing: We requested multiple models; average values
-    // for an ensemble-forecast
-    /* res = ensemble(res, 'rain_sum')
-    res = ensemble(res, 'snowfall_sum')
-    res = ensemble(res, 'temperature_2m_max')
-    res = ensemble(res, 'temperature_2m_min') */
+        '&models=' + allModels
+    )
 
     return res
 }
 
 // Averages out all columns that start with targetCol in res
+// Currently not in use as averaging out long-term-forecasts creates  
+// unrealistic scenarios. Only keeping this in case it may become relevant
+// at a later point in time.
 function ensemble(res: any, targetCol: string) {
     let colNames = Object.keys(res)
     // get all cols starting with targetCol

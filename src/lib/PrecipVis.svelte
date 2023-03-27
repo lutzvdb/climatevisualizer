@@ -25,7 +25,6 @@
 	let lastTrendPoint3: number | null = null
 	let totalDelta: number | null = null
 	let todayDelta: number | null = null
-	let gradient: number | null = null
 	let lastYear: number | null = null
 	let firstYear: number | null = null
 	let curYear: number = new Date().getFullYear() - 1 // past year has full true measurements
@@ -61,45 +60,66 @@
 					.objects()
 			}
 
-			const linTrend = LinearRegression(yearlySum.map((i: any) => [i.year, i.sumPrecipitation]))
+			const linTrendPast = LinearRegression(
+				yearlySum
+					.filter((i: any) => i.year <= curYear)
+					.map((i: any) => [i.year, i.sumPrecipitation])
+			)
+			const linTrendFuture = LinearRegression(
+				yearlySum.filter((i: any) => i.year > curYear).map((i: any) => [i.year, i.sumPrecipitation])
+			)
 
-			firstTrendPoint = Math.round(linTrend.predictions[0][1] * 10) / 10
+			firstTrendPoint = Math.round(linTrendPast.predictions[0][1] * 10) / 10
 			thisYearTrendPoint =
-				Math.round(linTrend.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
+				Math.round(linTrendPast.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
 			lastTrendPoint =
-				Math.round(linTrend.predictions[linTrend.predictions.length - 1][1] * 10) / 10
-			gradient = Math.round(linTrend.gradient * 10 * 10) / 10 // per decade
+				Math.round(linTrendFuture.predictions[linTrendFuture.predictions.length - 1][1] * 10) / 10
+
 			totalDelta = Math.round((lastTrendPoint - firstTrendPoint) * 10) / 10
 			todayDelta = Math.round((thisYearTrendPoint - firstTrendPoint) * 10) / 10
 
-			let linTrend_dryDays
-			let linTrend_strongestRain
+			let linTrend_dryDaysPast
+			let linTrend_dryDaysFuture
+			let linTrend_strongestRainPast
+			let linTrend_strongestRainFuture
 			if (type == 'rain') {
-				linTrend_dryDays = LinearRegression(dryDays.map((i: any) => [i.year, i.dryDayN]))
-				firstTrendPoint2 = Math.round(linTrend_dryDays.predictions[0][1] * 10) / 10
+				linTrend_dryDaysPast = LinearRegression(
+					dryDays.filter((i: any) => i.year <= curYear).map((i: any) => [i.year, i.dryDayN])
+				)
+				linTrend_dryDaysFuture = LinearRegression(
+					dryDays.filter((i: any) => i.year > curYear).map((i: any) => [i.year, i.dryDayN])
+				)
+				firstTrendPoint2 = Math.round(linTrend_dryDaysPast.predictions[0][1] * 10) / 10
 				thisYearTrendPoint2 =
-					Math.round(linTrend_dryDays.predictions.filter((i) => i[0] == curYear)[0][1] * 10) / 10
+					Math.round(linTrend_dryDaysPast.predictions.filter((i) => i[0] == curYear)[0][1] * 10) /
+					10
 				lastTrendPoint2 =
 					Math.round(
-						linTrend_dryDays.predictions[linTrend_dryDays.predictions.length - 1][1] * 10
+						linTrend_dryDaysFuture.predictions[linTrend_dryDaysFuture.predictions.length - 1][1] *
+							10
 					) / 10
 
-				linTrend_strongestRain = LinearRegression(
-					yearlySum.map((i: any) => [i.year, i.strongestRain])
+				linTrend_strongestRainPast = LinearRegression(
+					yearlySum.filter((i: any) => i.year <= curYear).map((i: any) => [i.year, i.strongestRain])
 				)
-				firstTrendPoint3 = Math.round(linTrend_strongestRain.predictions[0][1] * 10) / 10
+				linTrend_strongestRainFuture = LinearRegression(
+					yearlySum.filter((i: any) => i.year > curYear).map((i: any) => [i.year, i.strongestRain])
+				)
+				firstTrendPoint3 = Math.round(linTrend_strongestRainPast.predictions[0][1] * 10) / 10
 				thisYearTrendPoint3 =
-					Math.round(linTrend_strongestRain.predictions.filter((i) => i[0] == curYear)[0][1] * 10) /
-					10
+					Math.round(
+						linTrend_strongestRainPast.predictions.filter((i) => i[0] == curYear)[0][1] * 10
+					) / 10
 				lastTrendPoint3 =
 					Math.round(
-						linTrend_strongestRain.predictions[linTrend_strongestRain.predictions.length - 1][1] *
-							10
+						linTrend_strongestRainFuture.predictions[
+							linTrend_strongestRainFuture.predictions.length - 1
+						][1] * 10
 					) / 10
 			}
 
-			firstYear = linTrend.predictions[0][0]
-			lastYear = linTrend.predictions[linTrend.predictions.length - 1][0]
+			firstYear = yearlySum[0].year
+			lastYear = yearlySum[yearlySum.length - 1].year
 
 			plotData = {
 				labels: yearlySum.map((i: any) => i.year),
@@ -121,9 +141,11 @@
 					},
 					{
 						label: 'Trend',
-						data: linTrend.predictions.map((i: any) =>
-							i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
-						),
+						data: linTrendPast.predictions
+							.map((i: any) => (i[0] == firstYear || i[0] == curYear ? i[1] : undefined))
+							.concat(
+								linTrendFuture.predictions.map((i: any) => (i[0] == lastYear ? i[1] : undefined))
+							),
 						borderColor: 'rgba(0,0,200,0.7)',
 						backgroundColor: 'rgba(0,0,255,0.3)',
 						pointRadius: 5
@@ -131,7 +153,13 @@
 				]
 			}
 
-			if (type == 'rain' && linTrend_dryDays && linTrend_strongestRain) {
+			if (
+				type == 'rain' &&
+				linTrend_dryDaysFuture &&
+				linTrend_dryDaysPast &&
+				linTrend_strongestRainFuture &&
+				linTrend_strongestRainPast
+			) {
 				plotData2 = {
 					labels: yearlySum.map((i: any) => i.year),
 					datasets: [
@@ -152,9 +180,13 @@
 						},
 						{
 							label: 'Trend',
-							data: linTrend_dryDays.predictions.map((i: any) =>
-								i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
-							),
+							data: linTrend_dryDaysPast.predictions
+								.map((i: any) => (i[0] == firstYear || i[0] == curYear ? i[1] : undefined))
+								.concat(
+									linTrend_dryDaysFuture.predictions.map((i: any) =>
+										i[0] == lastYear ? i[1] : undefined
+									)
+								),
 							borderColor: 'rgba(0,0,200,0.7)',
 							backgroundColor: 'rgba(0,0,255,0.3)',
 							pointRadius: 5
@@ -182,9 +214,13 @@
 						},
 						{
 							label: 'Trend',
-							data: linTrend_strongestRain.predictions.map((i: any) =>
-								i[0] == firstYear || i[0] == curYear || i[0] == lastYear ? i[1] : undefined
-							),
+							data: linTrend_strongestRainPast.predictions
+								.map((i: any) => (i[0] == firstYear || i[0] == curYear ? i[1] : undefined))
+								.concat(
+									linTrend_strongestRainFuture.predictions.map((i: any) =>
+										i[0] == lastYear ? i[1] : undefined
+									)
+								),
 							borderColor: 'rgba(0,0,200,0.7)',
 							backgroundColor: 'rgba(0,0,255,0.3)',
 							pointRadius: 5
@@ -232,12 +268,13 @@
 			</h4>
 			<h4 class="text-xl m-4">Total yearly {type == 'rain' ? 'rainfall' : 'snowfall'}</h4>
 			<p>
-				{#if lastTrendPoint && firstTrendPoint && gradient && totalDelta}
+				{#if lastTrendPoint && firstTrendPoint && totalDelta}
 					In the {firstYear}s, the average year saw
 					<strong
 						>{firstTrendPoint}{unit}{type == 'rain' ? ' of rainfall' : ' of snowfall'}
 					</strong>. These days, the average yearly sum is
-					<strong>{thisYearTrendPoint}{unit}</strong>. Until {lastYear}, this is projected to change to
+					<strong>{thisYearTrendPoint}{unit}</strong>. Until {lastYear}, this is projected to change
+					to
 					<strong>{lastTrendPoint}{unit}</strong>. That is a total change of about {Math.abs(
 						totalDelta
 					)}{unit}.
@@ -246,15 +283,20 @@
 			{#if plotData}
 				<Line
 					data={plotData}
-					options={{ spanGaps: true, plugins: { title: {
-                        display: true,
-                        text: 'Total yearly ' + (type == 'rain' ? 'rainfall' : 'snowfall')
-                    },
-                    legend: { display: false } } }}
+					options={{
+						spanGaps: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'Total yearly ' + (type == 'rain' ? 'rainfall' : 'snowfall')
+							},
+							legend: { display: false }
+						}
+					}}
 				/>
 			{/if}
 			{#if type == 'rain'}
-                <h4 class="text-xl m-4 mt-8">Number of dry days</h4>
+				<h4 class="text-xl m-4 mt-8">Number of dry days</h4>
 				<p>
 					{#if lastTrendPoint2 && firstTrendPoint2}
 						In the {firstYear}s, the average year had
@@ -269,11 +311,16 @@
 				{#if plotData2}
 					<Line
 						data={plotData2}
-						options={{ spanGaps: true, plugins: { title: {
-                            display: true,
-                            text: 'Number of dry days'
-                        },
-                        legend: { display: false } } }}
+						options={{
+							spanGaps: true,
+							plugins: {
+								title: {
+									display: true,
+									text: 'Number of dry days'
+								},
+								legend: { display: false }
+							}
+						}}
 					/>
 				{/if}
 				<h4 class="text-xl m-4 mt-8">Strongest daily rainfall</h4>
@@ -296,11 +343,16 @@
 				{#if plotData3}
 					<Line
 						data={plotData3}
-						options={{ spanGaps: true, plugins: { title: {
-                            display: true,
-                            text: 'Strongest daily rainfall'
-                        },
-                        legend: { display: false } } }}
+						options={{
+							spanGaps: true,
+							plugins: {
+								title: {
+									display: true,
+									text: 'Strongest daily rainfall'
+								},
+								legend: { display: false }
+							}
+						}}
 					/>
 				{/if}
 			{/if}
