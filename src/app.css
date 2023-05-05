@@ -12,6 +12,11 @@ html {
     src: url("/Lato-Regular.ttf");
     font-style: normal;
 }
+@font-face {
+    font-family: 'Lato';
+    src: url("/Lato-Bold.ttf");
+    font-weight: bold;
+}
 
 a {
     text-decoration: dashed;

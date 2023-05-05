@@ -39,7 +39,16 @@
 		<a href="https://climate.copernicus.eu" target="_blank" rel="noreferrer" title="Copernicus">
 			copernicus program.
 		</a>
-		The climate change icon is created by
+		The long-term climate projections are also supplied by open-meteo and are based on data from
+		<a href="https://pcmdi.llnl.gov/CMIP6/" target="_blank" rel="noreferrer" title="CMIP6">CMIP6</a>
+		and are released unter
+		<a
+			href="https://creativecommons.org/licenses/by/4.0/"
+			target="_blank"
+			rel="noreferrer"
+			title="CC BY 4.0">CC BY 4.0</a
+		>
+		license. The climate change icon is created by
 		<a
 			href="https://www.flaticon.com/free-icons/climate-change"
 			target="_blank"
@@ -49,12 +58,16 @@
 		</a>.
 	</p>
 	<p class="mt-2">
-		Please note that the underlying data is based on a ~11km grid model. Usually, this makes no
+		Please note that the underlying historical data is based on a ~11km grid model. Usually, this makes no
 		difference as climate conditions don't often change that much within such small distances.
 		However, in extreme situations, the data displayed can be misleading, especially when looking at
 		places in small valleys. For example, looking at the data for Quito, Ecuador actually displays
 		data for the surrounding mountains because that's just where the grid points fall, leading to
 		suprising numbers – the climate in the mountains obviously is very different from the climate in
-		the valley below.
+		the valley below. 
 	</p>
+    <p class="mt-2">
+        Furthermore, all climate projections are inherently unsecure as they are based on assumptions. 
+        Please consider the projected values with caution. 
+    </p>
 </div>

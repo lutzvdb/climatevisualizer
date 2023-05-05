@@ -1,21 +1,23 @@
 <script lang="ts">
 	import LocationFinder from '$lib/LocationFinder.svelte'
 	import Footer from '$lib/Footer.svelte'
-	import getHistoricalWeatherData from '$lib/weatherData'
+	import getCombinedHistoricalAndForecastWeatherData from '$lib/weatherData'
 	import { inject } from '@vercel/analytics'
 	import { onMount } from 'svelte'
 	import UnitPicker from '$lib/UnitPicker.svelte'
+	import ClimateModelPicker from '$lib/ClimateModelPicker.svelte'
 	import { dev } from '$app/environment'
 	import Card from '$lib/Card.svelte'
 
-    import {
+	import {
 		Chart as ChartJS,
 		Tooltip,
+		Title,
 		LineElement,
 		LinearScale,
 		PointElement,
 		CategoryScale,
-        Filler
+		Filler
 	} from 'chart.js'
 
 	let lat: number | null = null
@@ -25,6 +27,7 @@
 	let originalWthData: any = null
 	let wthDataPromise: Promise<any> | null = null
 	let unit: string = 'metric'
+	let climateModel: string = 'MRI_AGCM3_2_S'
 	let activeTab: number = 1
 
 	if (dev) {
@@ -36,7 +39,25 @@
 		if (originalWthData) {
 			// we received new weather data!
 			// first, create a deep copy of the original data
-			let newWthData = JSON.parse(JSON.stringify(originalWthData))
+			let wthDataCopy = JSON.parse(JSON.stringify(originalWthData))
+
+			// select requested weather model
+			wthDataCopy.forecast['temperature_2m_max'] =
+				wthDataCopy.forecast['temperature_2m_max_' + climateModel]
+            wthDataCopy.forecast['temperature_2m_min'] =
+				wthDataCopy.forecast['temperature_2m_min_' + climateModel]
+            wthDataCopy.forecast['rain_sum'] =
+				wthDataCopy.forecast['rain_sum_' + climateModel]
+            wthDataCopy.forecast['snowfall_sum'] =
+				wthDataCopy.forecast['snowfall_sum_' + climateModel]
+			
+			let newWthData: any = {}
+
+            // UNIONize history and forecast data
+			Object.keys(wthDataCopy.history).forEach((k) => {
+				newWthData[k] = wthDataCopy.history[k].concat(wthDataCopy.forecast[k])
+			})
+
 			// now, convert to correct unit
 			// we requested in metric units, so we only have to do conversion
 			// for imperial units
@@ -62,10 +83,10 @@
 
 	$: {
 		if (lat && lon) {
-			wthDataPromise = getHistoricalWeatherData(lat, lon).then((res) => {
+			wthDataPromise = getCombinedHistoricalAndForecastWeatherData(lat, lon).then((res) => {
 				if (!res) return
-				if (!res.daily) return
-				originalWthData = res.daily
+
+				originalWthData = res
 			})
 		}
 	}
@@ -77,7 +98,7 @@
 		// lazy-load components for faster initial page load
 		TempVis = (await import('$lib/TempVis.svelte')).default
 		PrecipVis = (await import('$lib/PrecipVis.svelte')).default
-        ChartJS.register(Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
+		ChartJS.register(Title, Tooltip, LineElement, Filler, LinearScale, PointElement, CategoryScale)
 
 		if (dev) {
 			console.log('Not running analytics in development mode.')
@@ -104,13 +125,19 @@
 			average. The graphics below are designed to give you an idea of how the climate has changed to
 			this date for the place where you live.
 		</p>
+		<p class="mt-4">
+			The data also incorporates climate projections up until 2050. Please keep in mind that such
+			long-term projections are always subject to assumptions and therefore only represent our
+			current best guess as to what might happen.
+		</p>
 		<br />
 	</div>
 	<div>
 		<LocationFinder bind:lat bind:lon bind:prettyLocName />
 	</div>
-	<div>
+	<div class="flex flex-col md:flex-row gap-4 items-center">
 		<UnitPicker bind:unit />
+		<ClimateModelPicker bind:climateModel />
 	</div>
 </Card>
 {#if lat && lon}
